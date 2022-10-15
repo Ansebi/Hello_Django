@@ -2,9 +2,12 @@
 - create venv
 - activate venv if not using PyCharm
 - initialize Django
+- create a django app
 - run server
 
 For Windows:
+Create a Django app:
+> C:\Documents\Python\Hello_Django\Hello_Django py manage.py startapp hello_django
 
 Activate:
   >Win+R
