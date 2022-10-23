@@ -1,0 +1,12 @@
+[
+     {
+         "title": "Blog Post 1",
+         "content": "First post content",
+         "user_id": 1
+     },
+     {
+         "title": "Blog Post 2",
+         "content": "Second post content",
+         "user_id": 2
+     }
+]
