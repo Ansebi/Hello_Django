@@ -27,7 +27,9 @@
           <div class="collapse navbar-collapse" id="navbarToggle">
             <div class="navbar-nav mr-auto">
               <a class="nav-item nav-link" href="{% url 'hello_app-home' %}">Home</a>
-              <a class="nav-item nav-link" href="{% url 'hello_app-about' %}">About</a>
+                {% if user.is_staff %}
+                    <a class="nav-item nav-link" href="{% url 'charts' %}">Charts</a>
+                {% endif %}
             </div>
             <!-- Navbar Right Side -->
             <div class="navbar-nav">
@@ -56,6 +58,18 @@
             {% endif %}
             {% block content %}{% endblock %}
         </div>
+<!--        <div class="col-md-4">-->
+<!--          <div class="content-section">-->
+<!--            <h3>Our Sidebar</h3>-->
+<!--            <p class='text-muted'>You can put any information here you'd like.-->
+<!--              <ul class="list-group">-->
+<!--                <li class="list-group-item list-group-item-light">Regions</li>-->
+<!--                <li class="list-group-item list-group-item-light">Yields</li>-->
+<!--                <li class="list-group-item list-group-item-light">Climate</li>-->
+<!--              </ul>-->
+<!--            </p>-->
+<!--          </div>-->
+<!--        </div>-->
       </div>
     </main>
 

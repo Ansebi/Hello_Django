@@ -1,3 +1,4 @@
+from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, get_object_or_404
 from .models import Post
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -107,5 +108,23 @@ def home(request):
     return render(request, 'hello_app/home.html', context)
 
 
-def about(request):
-    return render(request, 'hello_app/about.html', {'title': 'An About Page'})
+def global_():
+    pass
+
+
+global_.counter = 0
+
+
+@staff_member_required
+def charts(request):
+    print(request)
+    if request.GET.get('The_Button'):
+        if request.GET.get('The_Button').isnumeric():
+            global_.counter += 1
+    else:
+        global_.counter = 0
+    return render(request, 'hello_app/charts.html',
+                  {
+                      'title': 'Charts',
+                      'test_var': global_.counter
+                  })

@@ -1,0 +1,156 @@
+{% extends "hello_app/base.html" %}
+{% block content %}
+    <h1>{{ title }}</h1>
+    <form method="get" action="{% url 'charts' %}">
+        <span> This counter runs on our server: </span>
+        <input class="btn btn-outline-info" type="submit" value="{{ test_var }}" name="The_Button"/>
+    </form>
+    <div>
+        <head>
+            <meta charset="utf-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+            <link rel="stylesheet" type="text/css" href="https://rawgit.com/gionkunz/chartist-js/master/dist/chartist.min.css">
+
+            <style>
+                #chart {
+                    height: 500px;
+                    width: 50%;
+                }
+            </style>
+
+        </head>
+        <div>
+            <div class="ct-chart" id="chart"></div>
+            <button class="btn btn-outline-info" onclick="JSON_extract_multiple_lists_(['name', 'hp', 'armor', 'energy'])">Show The Chart</button>
+
+            <script type="text/javascript" src="https://rawgit.com/gionkunz/chartist-js/master/dist/chartist.js"></script>
+            {% load static %}
+            <script type="text/javascript" src="{% static 'hello_app/chartist-plugin-axistitle.js' %}"></script>
+
+            <script>
+
+            let JSON_ADDRESS_ = "{% static 'hello_app/data.json' %}";
+
+            async function readJSON_(address_) {
+              const resp_ = await fetch(address_, {cache: "reload"});
+              const json_parsed = await resp_.json();
+              return json_parsed;
+            }
+
+            function JSON_extract_value_(
+              parsed_json_object,
+              upper_level,
+              n,
+              feature_name_) {
+              // json = {upper_level: [{...}, {...}, {...} ...]}
+              const value_ = parsed_json_object[upper_level][n][feature_name_]
+              return value_;
+            }
+
+            async function JSON_extract_values_list_(
+              json_address_,
+              upper_level,
+              feature_name_) {
+              // json = {upper_level: [{...}, {...}, {...} ...]}
+              const json_object_ = await readJSON_(json_address_);
+              const json_len_ = Object.keys(json_object_[upper_level]).length;
+              var values_list_ = [];
+              for (let n = 0; n < json_len_; n++) {
+                var value_ = JSON_extract_value_(
+                json_object_,
+                upper_level,
+                n,
+                feature_name_);
+                values_list_.push(value_);
+              };
+              return values_list_;
+            }
+
+            async function readAndShowValues_(
+            json_address_,
+            upper_level,
+            feature_name_) {
+              const id_list_ = await JSON_extract_values_list_(
+                json_address_,
+                upper_level,
+                feature_name_);
+              var message_ = 'The ids are: ';
+              message_ += id_list_;
+              message_ += '. Total number: ';
+              message_ += id_list_.length;
+              message_ += ' ids.';
+              revealMessage_(message_);
+            }
+
+            async function JSON_extract_multiple_lists_(features_list_) {
+              var results_ = [];
+              for (feature_ of features_list_) {
+                var values_ = await JSON_extract_values_list_(
+                  JSON_ADDRESS_,
+                  'users',
+                  feature_);
+                results_.push(values_);
+              };
+              const [names_, hps_, armors_, energies_] = results_;
+
+              var chart = new Chartist.Bar('.ct-chart', {
+                  labels: names_,
+                  series: [hps_, armors_, energies_]
+                }, {
+                  low: 0,
+                  showArea: true,
+                  showPoint: false,
+                  fullWidth: true,
+                  chartPadding: {
+                    top: 30,
+                    right: 30,
+                    bottom: 30,
+                    left: 30
+                  },
+                  plugins: [
+                    Chartist.plugins.ctAxisTitle({
+                              axisX: {
+                                axisTitle: 'Character',
+                                axisClass: 'ct-axis-title',
+                                offset: {
+                                  x: 0,
+                                  y: 50
+                                },
+                                textAnchor: 'middle'
+                              },
+                              axisY: {
+                                axisTitle: 'HP, Armor, Energy',
+                                axisClass: 'ct-axis-title',
+                                offset: {
+                                  x: 0,
+                                  y: 25
+                                },
+                                textAnchor: 'middle',
+                                flipTitle: true //y offset negative if true
+                              }
+                            })
+                          ]
+                });
+
+                chart.on('draw', function(data) {
+                  console.log(data);
+                  if(data.type == 'bar') {
+                      data.element.animate({
+                          y2: {
+                              dur: 500,
+                              from: data.y1,
+                              to: data.y2
+                              }
+                          });
+                      }
+                  });
+              // return results_;
+            }
+
+            </script>
+        </div>
+    </div>
+{% endblock content %}
