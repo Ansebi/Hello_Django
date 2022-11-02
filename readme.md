@@ -5,7 +5,7 @@ Based on the code and materials by CoreyMSchafer
 
 # Fresh Start to Django:
 - create venv
-- activate venv if not using PyCharm
+- activate venv (if not using PyCharm)
 - initialize Django
 - create a django app
 - run server
