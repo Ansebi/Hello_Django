@@ -15,22 +15,78 @@
             <link rel="stylesheet" type="text/css" href="https://rawgit.com/gionkunz/chartist-js/master/dist/chartist.min.css">
 
             <style>
-                #chart {
-                    height: 500px;
+                .wrapper {
+                  position: relative;
+                }
+                #chart_bar {
+                  height: 500px;
+                  width: 100%;
+                }
+                #chart_pie {
+                  height: 250px;
+                  width: 100%;
+                }
+
+                .frame_circle{
+                  width:350px;
+                  height:350px;
+                  border-radius:50%;
+                  margin: auto;
+                  position: absolute;
+                  top: 0;
+                  /*background-color: black;*/
+                }
+
+                @keyframes unhide_anim {
+                  from {
+                    transform: translate(0%);
+                    opacity: 1;
+                  }
+                  95% {opacity: 1;}
+                  to {
+                    /*transform: translate(100%);*/
+                    transform: rotate(90deg);
+                    opacity: 0;
+                    pointer-events: none;
+                  }
+                }
+                #hide_circle {
+                    height: 100%;
                     width: 100%;
+                    position: relative;
+                    border-radius: 50% 50% 50% 50%;
+                    top: 0;
+                    background-color: #fafafa;
+                    transform-origin: 0% 100%;
+                    /*animation: unhide_anim 2s forwards;    */
+/*                    animation-duration: 2s;
+                    animation-name: unhide_anim;
+                    animation-fill-mode: forwards;*/
                 }
             </style>
 
         </head>
         <div>
-            <div class="ct-chart" id="chart"></div>
-            <button class="btn btn-outline-info" onclick="JSON_extract_multiple_lists_(['name', 'hp', 'armor', 'energy'])">Show The Chart</button>
+          <div style="display: flex; flex-direction: column;">
+              <button class="btn btn-outline-info mt-3" onclick="showCharts_(['name', 'hp', 'armor', 'energy'])">Show The Chart</button>
+              <div class="chart_" id="chart_bar"></div>
+              <div style="display: flex; flex-direction: row;">
+                <div class="wrapper"> 
+                  <div class="chart_" id="chart_pie"></div>
+                  <div class="frame_circle">
+                    <div id="hide_circle"></div>
+                  </div>
+             
+                </div>                                  
+              </div>
+          </div>
+        </div>
 
-            <script type="text/javascript" src="https://rawgit.com/gionkunz/chartist-js/master/dist/chartist.js"></script>
-            {% load static %}
-            <script type="text/javascript" src="{% static 'hello_app/chartist-plugin-axistitle.js' %}"></script>
+        <script type="text/javascript" src="https://rawgit.com/gionkunz/chartist-js/master/dist/chartist.js"></script>
+        {% load static %}
+        <script type="text/javascript" src="{% static 'hello_app/chartist-plugin-axistitle.js' %}"></script>
 
-            <script>
+        <script>
 
             let JSON_ADDRESS_ = "{% static 'hello_app/data.json' %}";
 
@@ -85,7 +141,7 @@
               revealMessage_(message_);
             }
 
-            async function JSON_extract_multiple_lists_(features_list_) {
+            async function showCharts_(features_list_) {
               var results_ = [];
               for (feature_ of features_list_) {
                 var values_ = await JSON_extract_values_list_(
@@ -95,8 +151,28 @@
                 results_.push(values_);
               };
               const [names_, hps_, armors_, energies_] = results_;
-
-              var chart = new Chartist.Bar('.ct-chart', {
+              const ct_axis_title_ = Chartist.plugins.ctAxisTitle({
+                axisX: {
+                  axisTitle: 'Character',
+                  axisClass: 'ct-axis-title',
+                  offset: {
+                    x: 0,
+                    y: 50
+                  },
+                  textAnchor: 'middle'
+                },
+                axisY: {
+                  axisTitle: 'HP, Armor, Energy',
+                  axisClass: 'ct-axis-title',
+                  offset: {
+                    x: 0,
+                    y: 25
+                  },
+                  textAnchor: 'middle',
+                  flipTitle: true //y offset negative if true
+                }
+              })
+              var chart = new Chartist.Bar('#chart_bar', {
                   labels: names_,
                   series: [hps_, armors_, energies_]
                 }, {
@@ -110,33 +186,10 @@
                     bottom: 30,
                     left: 30
                   },
-                  plugins: [
-                    Chartist.plugins.ctAxisTitle({
-                              axisX: {
-                                axisTitle: 'Character',
-                                axisClass: 'ct-axis-title',
-                                offset: {
-                                  x: 0,
-                                  y: 50
-                                },
-                                textAnchor: 'middle'
-                              },
-                              axisY: {
-                                axisTitle: 'HP, Armor, Energy',
-                                axisClass: 'ct-axis-title',
-                                offset: {
-                                  x: 0,
-                                  y: 25
-                                },
-                                textAnchor: 'middle',
-                                flipTitle: true //y offset negative if true
-                              }
-                            })
-                          ]
+                  plugins: [ct_axis_title_]
                 });
 
                 chart.on('draw', function(data) {
-                  console.log(data);
                   if(data.type == 'bar') {
                       data.element.animate({
                           y2: {
@@ -147,9 +200,41 @@
                           });
                       }
                   });
-              // return results_;
-            }
 
+
+                var pie_data = {
+                  labels: names_,
+                  series: energies_
+                };
+                var pie_options = {
+                  labelInterpolationFnc: function(value) {
+                    return value[0]
+                  }
+                };
+                var pie_responsiveOptions = [
+                  ['screen and (min-width: 640px)', {
+                    chartPadding: 30,
+                    labelOffset: 25,
+                    labelDirection: 'explode',
+                    labelInterpolationFnc: function(value) {
+                      return value;
+                    }
+                  }],
+                  ['screen and (min-width: 1024px)', {
+                    labelOffset: 20,
+                    chartPadding: 20
+                  }]
+                ];
+
+                var chart2 = new Chartist.Pie(
+                  '#chart_pie',
+                  pie_data,
+                  pie_options,
+                  pie_responsiveOptions
+                );                          
+
+                console.log(document.getElementById('hide_circle').style.animation = 'unhide_anim 2s forwards')
+            }
             </script>
         </div>
     </div>
