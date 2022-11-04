@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6bf55d2a-6b71-4ab4-b160-0eac8b3b0445" name="Changes" comment="pie chart unhides with a simple css">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Hello_Django/hello_app/templates/hello_app/charts.html" beforeDir="false" afterPath="$PROJECT_DIR$/Hello_Django/hello_app/templates/hello_app/charts.html" afterDir="false" />
-    </list>
+    <list default="true" id="6bf55d2a-6b71-4ab4-b160-0eac8b3b0445" name="Changes" comment="chart overhaul: chart js instead of chartist" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -83,7 +80,14 @@
       <option name="project" value="LOCAL" />
       <updated>1667487258801</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="chart overhaul: chart js instead of chartist">
+      <created>1667524816706</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1667524816706</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -102,6 +106,7 @@
     <MESSAGE value="ALLOWED_HOST ip address is now os variable" />
     <MESSAGE value="..." />
     <MESSAGE value="pie chart unhides with a simple css" />
-    <option name="LAST_COMMIT_MESSAGE" value="pie chart unhides with a simple css" />
+    <MESSAGE value="chart overhaul: chart js instead of chartist" />
+    <option name="LAST_COMMIT_MESSAGE" value="chart overhaul: chart js instead of chartist" />
   </component>
 </project>
