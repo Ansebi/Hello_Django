@@ -24,11 +24,11 @@
           <div style="display: flex; flex-direction: column;">
               <button class="btn btn-outline-info mt-3" onclick="showCharts_(['name', 'hp', 'armor', 'energy'])">Show The Charts</button>
 
-              <div style="height: 50%, margin-top: 5%;">
-                <canvas id="bar-chart"></canvas>
+              <div style="height: 100%, width:  auto; margin-top: 5%; position: relative;">
+                <canvas id="bar-chart"  width="600px" height="500px"></canvas>
               </div>
 
-              <div style="display: flex; flex-direction: row; margin-top: 5%;">
+              <div style="display: flex; flex-direction: row; margin-top: 5%; overflow: auto;">
                 <div>
                   <canvas id="doughnut_hps" width="240px" height="240px"></canvas>
                 </div>
@@ -129,7 +129,7 @@
                   type: 'doughnut',
                   data: data,
                   options: {
-                      responsive: false,
+                      responsive: true,
                       maintainAspectRatio: false,
                       title: {
                           display: true,
@@ -163,7 +163,7 @@
                   type: 'doughnut',
                   data: data_2,
                   options: {
-                      responsive: false,
+                      responsive: true,
                       maintainAspectRatio: false,
                       title: {
                           display: true,
@@ -197,7 +197,7 @@
                   type: 'doughnut',
                   data: data_3,
                   options: {
-                      responsive: false,
+                      responsive: true,
                       maintainAspectRatio: false,
                       title: {
                           display: true,
@@ -219,7 +219,6 @@
               const json_len_ = Object.keys(json_object_[upper_level]).length;
               var datasets_ = [];              
               for (const [index_, feature_] of features_list_.slice(1).entries()) {
-                console.log(feature_);
                 var dataset_ = {};
                 dataset_['data'] = []
                 dataset_['label'] = feature_;
@@ -230,16 +229,17 @@
                 }
                 datasets_.push(dataset_);
               };
-              console.log(datasets_);
              
 
-              new Chart(document.getElementById('bar-chart').getContext('2d'), {
+              var barChart = new Chart(document.getElementById('bar-chart').getContext('2d'), {
                 type: 'bar',
                 data: {
                   labels: names_,
                   datasets: datasets_
                 },
                 options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
                   legend: {
                     display: true,
                     position: 'right'
