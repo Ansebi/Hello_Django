@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6bf55d2a-6b71-4ab4-b160-0eac8b3b0445" name="Changes" comment="...">
+    <list default="true" id="6bf55d2a-6b71-4ab4-b160-0eac8b3b0445" name="Changes" comment="pie chart unhides with a simple css">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Hello_Django/hello_app/templates/hello_app/charts.html" beforeDir="false" afterPath="$PROJECT_DIR$/Hello_Django/hello_app/templates/hello_app/charts.html" afterDir="false" />
     </list>
@@ -69,7 +69,21 @@
       <option name="project" value="LOCAL" />
       <updated>1667414310216</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="pie chart unhides with a simple css">
+      <created>1667487245843</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1667487245843</updated>
+    </task>
+    <task id="LOCAL-00007" summary="pie chart unhides with a simple css">
+      <created>1667487258801</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1667487258801</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -87,6 +101,7 @@
     <MESSAGE value="Charts added" />
     <MESSAGE value="ALLOWED_HOST ip address is now os variable" />
     <MESSAGE value="..." />
-    <option name="LAST_COMMIT_MESSAGE" value="..." />
+    <MESSAGE value="pie chart unhides with a simple css" />
+    <option name="LAST_COMMIT_MESSAGE" value="pie chart unhides with a simple css" />
   </component>
 </project>

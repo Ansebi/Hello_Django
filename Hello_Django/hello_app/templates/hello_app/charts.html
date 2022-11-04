@@ -1,9 +1,10 @@
 {% extends "hello_app/base.html" %}
 {% block content %}
+{% load static %}
     <h1>{{ title }}</h1>
     <form method="get" action="{% url 'charts' %}">
         <span> This counter runs on our server: </span>
-        <input class="btn btn-outline-info" type="submit" value="{{ test_var }}" name="The_Button"/>
+        <input class="btn btn-outline-info ml-2" type="submit" value="{{ test_var }}" name="The_Button"/>
     </form>
     <div>
         <head>
@@ -15,79 +16,36 @@
             <link rel="stylesheet" type="text/css" href="https://rawgit.com/gionkunz/chartist-js/master/dist/chartist.min.css">
 
             <style>
-                .wrapper {
-                  position: relative;
-                }
-                #chart_bar {
-                  height: 500px;
-                  width: 100%;
-                }
-                #chart_pie {
-                  height: 250px;
-                  width: 100%;
-                }
 
-                .frame_circle{
-                  width:350px;
-                  height:350px;
-                  border-radius:50%;
-                  margin: auto;
-                  position: absolute;
-                  top: 0;
-                  /*background-color: black;*/
-                }
-
-                @keyframes unhide_anim {
-                  from {
-                    transform: translate(0%);
-                    opacity: 1;
-                  }
-                  95% {opacity: 1;}
-                  to {
-                    /*transform: translate(100%);*/
-                    transform: rotate(90deg);
-                    opacity: 0;
-                    pointer-events: none;
-                  }
-                }
-                #hide_circle {
-                    height: 100%;
-                    width: 100%;
-                    position: relative;
-                    border-radius: 50% 50% 50% 50%;
-                    top: 0;
-                    background-color: #fafafa;
-                    transform-origin: 0% 100%;
-                    /*animation: unhide_anim 2s forwards;    */
-/*                    animation-duration: 2s;
-                    animation-name: unhide_anim;
-                    animation-fill-mode: forwards;*/
-                }
             </style>
 
         </head>
         <div>
           <div style="display: flex; flex-direction: column;">
               <button class="btn btn-outline-info mt-3" onclick="showCharts_(['name', 'hp', 'armor', 'energy'])">Show The Chart</button>
-              <div class="chart_" id="chart_bar"></div>
-              <div style="display: flex; flex-direction: row;">
-                <div class="wrapper"> 
-                  <div class="chart_" id="chart_pie"></div>
-                  <div class="frame_circle">
-                    <div id="hide_circle"></div>
-                  </div>
-             
-                </div>                                  
+
+              <div style="height: 50%, margin-top: 5%;">
+                <canvas id="bar-chart"></canvas>
+              </div>
+
+              <div style="display: flex; flex-direction: row; margin-top: 5%;">
+                <div>
+                  <canvas id="doughnut_hps" width="240px" height="240px"></canvas>
+                </div>
+                <div>
+                  <canvas id="doughnut_armors" width="240px" height="240px"></canvas>
+                </div>
+                <div>
+                  <canvas id="doughnut_energies" width="240px" height="240px"></canvas>
+                </div>                                   
               </div>
           </div>
         </div>
 
-        <script type="text/javascript" src="https://rawgit.com/gionkunz/chartist-js/master/dist/chartist.js"></script>
-        {% load static %}
-        <script type="text/javascript" src="{% static 'hello_app/chartist-plugin-axistitle.js' %}"></script>
-
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.js"></script>
+        
         <script>
-
+            
             let JSON_ADDRESS_ = "{% static 'hello_app/data.json' %}";
 
             async function readJSON_(address_) {
@@ -150,90 +108,149 @@
                   feature_);
                 results_.push(values_);
               };
-              const [names_, hps_, armors_, energies_] = results_;
-              const ct_axis_title_ = Chartist.plugins.ctAxisTitle({
-                axisX: {
-                  axisTitle: 'Character',
-                  axisClass: 'ct-axis-title',
-                  offset: {
-                    x: 0,
-                    y: 50
-                  },
-                  textAnchor: 'middle'
-                },
-                axisY: {
-                  axisTitle: 'HP, Armor, Energy',
-                  axisClass: 'ct-axis-title',
-                  offset: {
-                    x: 0,
-                    y: 25
-                  },
-                  textAnchor: 'middle',
-                  flipTitle: true //y offset negative if true
-                }
-              })
-              var chart = new Chartist.Bar('#chart_bar', {
-                  labels: names_,
-                  series: [hps_, armors_, energies_]
-                }, {
-                  low: 0,
-                  showArea: true,
-                  showPoint: false,
-                  fullWidth: true,
-                  chartPadding: {
-                    top: 30,
-                    right: 30,
-                    bottom: 30,
-                    left: 30
-                  },
-                  plugins: [ct_axis_title_]
-                });
+              const [names_, hps_, armors_, energies_] = results_;            
+                
 
-                chart.on('draw', function(data) {
-                  if(data.type == 'bar') {
-                      data.element.animate({
-                          y2: {
-                              dur: 500,
-                              from: data.y1,
-                              to: data.y2
-                              }
-                          });
-                      }
-                  });
-
-
-                var pie_data = {
-                  labels: names_,
-                  series: energies_
-                };
-                var pie_options = {
-                  labelInterpolationFnc: function(value) {
-                    return value[0]
-                  }
-                };
-                var pie_responsiveOptions = [
-                  ['screen and (min-width: 640px)', {
-                    chartPadding: 30,
-                    labelOffset: 25,
-                    labelDirection: 'explode',
-                    labelInterpolationFnc: function(value) {
-                      return value;
-                    }
+              const hp_colors = [
+                          '#e60017',
+                          '#fe5653',
+                          '#f7c851',
+                          '#d97924'
+                          ];
+              var ctx = document.getElementById("doughnut_hps").getContext('2d');
+              var data = {
+                  datasets: [{
+                      data: hps_,
+                      backgroundColor: hp_colors,
                   }],
-                  ['screen and (min-width: 1024px)', {
-                    labelOffset: 20,
-                    chartPadding: 20
-                  }]
-                ];
+                  labels: names_
+              };
+              var hpsDoughnutChart = new Chart(ctx, {
+                  type: 'doughnut',
+                  data: data,
+                  options: {
+                      responsive: false,
+                      maintainAspectRatio: false,
+                      title: {
+                          display: true,
+                          text: 'HPs',
+                      },
+                      legend: {
+                          position: 'bottom',
+                          labels: {
+                              boxWidth: 12
+                          }
+                      }
+                  }
+              });
 
-                var chart2 = new Chartist.Pie(
-                  '#chart_pie',
-                  pie_data,
-                  pie_options,
-                  pie_responsiveOptions
-                );                          
+              const armor_colors = [
+                          '#ffad08',
+                          '#edd75a',
+                          '#73b06f',
+                          '#0c8f8f',
+                          '#405059'
+                          ];
+              var ctx_2 = document.getElementById("doughnut_armors").getContext('2d');
+              var data_2 = {
+                  datasets: [{
+                      data: armors_,
+                      backgroundColor: armor_colors
+                  }],
+                  labels: names_
+              };
+              var armorsDoughnutChart = new Chart(ctx_2, {
+                  type: 'doughnut',
+                  data: data_2,
+                  options: {
+                      responsive: false,
+                      maintainAspectRatio: false,
+                      title: {
+                          display: true,
+                          text: 'Armors',
+                      },
+                      legend: {
+                          position: 'bottom',
+                          labels: {
+                              boxWidth: 12
+                          }
+                      }
+                  }
+              });
 
-                console.log(document.getElementById('hide_circle').style.animation = 'unhide_anim 2s forwards')
+              const energy_colors = [
+                          '#8bbdd8',
+                          '#83a3bd',
+                          '#7c789c',
+                          '#876089',
+                          '#6d4672'
+                          ];
+              var ctx_3 = document.getElementById("doughnut_energies").getContext('2d');
+              var data_3 = {
+                  datasets: [{
+                      data: energies_,
+                      backgroundColor: energy_colors
+                  }],
+                  labels: names_
+              };
+              var energiesDoughnutChart = new Chart(ctx_3, {
+                  type: 'doughnut',
+                  data: data_3,
+                  options: {
+                      responsive: false,
+                      maintainAspectRatio: false,
+                      title: {
+                          display: true,
+                          text: 'Energies',
+                      },
+                      legend: {
+                          position: 'bottom',
+                          labels: {
+                              boxWidth: 12
+                          }
+                      }
+                  }
+              });
+
+
+              
+              const upper_level = 'users'
+              const json_object_ = await readJSON_(JSON_ADDRESS_);
+              const json_len_ = Object.keys(json_object_[upper_level]).length;
+              var datasets_ = [];              
+              for (const [index_, feature_] of features_list_.slice(1).entries()) {
+                console.log(feature_);
+                var dataset_ = {};
+                dataset_['data'] = []
+                dataset_['label'] = feature_;
+                dataset_['backgroundColor'] = hp_colors[index_];
+                for (let n = 0; n < json_len_; n++) {                  
+                  var value_ = json_object_[upper_level][n][feature_];
+                  dataset_['data'].push(value_);
+                }
+                datasets_.push(dataset_);
+              };
+              console.log(datasets_);
+             
+
+              new Chart(document.getElementById('bar-chart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                  labels: names_,
+                  datasets: datasets_
+                },
+                options: {
+                  legend: {
+                    display: true,
+                    position: 'right'
+                  },
+                  title: {
+                    display: true,
+                    text: 'Characters and their features'
+                  }
+                }
+            });
+          
             }
             </script>
         </div>
