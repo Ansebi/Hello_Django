@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated Circles with Drag-Select</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: #f0f0f0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .circle {
+            width: var(--circle-size, 100px);
+            height: var(--circle-size, 100px);
+            position: absolute;
+            border-radius: 50%;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+        }
+
+        .selection-box {
+            position: absolute;
+            border: 2px dashed #555;
+            background-color: rgba(0, 0, 0, 0.1);
+            pointer-events: none;
+        }
+
+        .projectile {
+            width: 10px;
+            height: 10px;
+            position: absolute;
+            border-radius: 50%;
+            background-color: black;
+        }
+
+        .pannel {
+            position: fixed;
+            bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .pannel.left {
+            left: 20px;
+        }
+
+        .pannel.right {
+            right: 20px;
+        }
+
+        .pannel-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .pannel-button:hover {
+            background-color: #eeeeee;
+        }
+
+        .panel-disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+
+        .gray-button {
+            background-color: gray;
+        }
+
+        .red-button {
+            background-color: red;
+        }
+
+        .green-button {
+            background-color: green;
+        }
+
+        .blue-button {
+            background-color: blue;
+        }
+
+        .black-button {
+            background-color: black;
+        }
+
+        .go-button {
+            background-color: #ffa500; /* Orange for distinction */
+        }
+
+        .go-button:disabled {
+            background-color: #ddd; /* Disabled state */
+            cursor: not-allowed;
+        }
+
+        .circle.selected {
+            border: 2px solid #000; /* Add a border to indicate selection */
+            background-color: rgba(0, 0, 0, 0.1); /* Light background to show selection */
+        }
+
+        .circle[disabled] {
+            opacity: 0.9; /* Dim the circles that can't be selected */
+            pointer-events: none; /* Disable any interaction */
+        }
+
+        #money-A, #money-B {
+            font-weight: bold;  /* Make the font bold */
+            font-family: 'Arial', sans-serif;  /* Use a clean sans-serif font */
+            font-size: calc(var(--circle-size) * 1.5);  /* Set font size to 1.5 times the CIRCLE_SIZE */
+            letter-spacing: 2px;  /* Make the font wider */
+            color: black;  /* Text color */
+            text-align: center;  /* Center the text */
+        }
+
+
+
+
+    </style>
+</head>
+<body>
+
+    <div class="pannel left">
+        <div class="pannel-button add-button gray-button" data-color="gray" data-side="A">+</div>
+        <div class="pannel-button add-button red-button" data-color="red" data-side="A">+</div>
+        <div class="pannel-button add-button green-button" data-color="green" data-side="A">+</div>
+        <div class="pannel-button add-button blue-button" data-color="blue" data-side="A">+</div>
+        <div class="pannel-button add-button black-button" data-color="black" data-side="A">+</div>
+        <div class="pannel-button go-button" data-side="A">GO</div>
+        <div id="money-A">25</div> <!-- Display money for side A -->        
+    </div>
+    
+    <div class="pannel right">
+        <div class="pannel-button add-button gray-button" data-color="gray" data-side="B">+</div>
+        <div class="pannel-button add-button red-button" data-color="red" data-side="B">+</div>
+        <div class="pannel-button add-button green-button" data-color="green" data-side="B">+</div>
+        <div class="pannel-button add-button blue-button" data-color="blue" data-side="B">+</div>
+        <div class="pannel-button add-button black-button" data-color="black" data-side="B">+</div>
+        <div class="pannel-button go-button" data-side="B">GO</div>
+        <div id="money-B">25</div> <!-- Display money for side B -->
+    </div>
+    
+
+    <script>
+        const CIRCLE_SIZE = 25; // pixels
+        const ANIMATION_SPEED = 4; // pixels/frame
+        const circleAttributes = {
+            gray: { cost: 1, maxHealth: 10, attack: 0, attackDistance: 0, travelDistance: CIRCLE_SIZE * 5, sight: CIRCLE_SIZE * 10, aimAlly: false },
+            red: { cost: 1, maxHealth: 3, attack: 1, attackDistance: CIRCLE_SIZE * 3, travelDistance: CIRCLE_SIZE * 7, sight: CIRCLE_SIZE * 10, aimAlly: false },
+            green: { cost: 1, maxHealth: 1, attack: 1, attackDistance: CIRCLE_SIZE * 8, travelDistance: CIRCLE_SIZE * 15, sight: CIRCLE_SIZE * 10, aimAlly: false },
+            blue: { cost: 1, maxHealth: 1, attack: -2, attackDistance: CIRCLE_SIZE * 3, travelDistance: CIRCLE_SIZE * 15, sight: CIRCLE_SIZE * 10, aimAlly: true },
+            black: { cost: 13, maxHealth: 1, attack: 3, attackDistance: CIRCLE_SIZE * 25, travelDistance: CIRCLE_SIZE * 20, sight: CIRCLE_SIZE * 10, aimAlly: false },
+        };
+
+
+        document.documentElement.style.setProperty('--circle-size', `${CIRCLE_SIZE}px`);
+
+        const circles = [];
+        const selectedCircles = new Set();
+
+        let isDragging = false;
+        let selectionBox = null;
+        let startX = 0;
+        let startY = 0;
+        let currentTurn = 'A';
+        let money = {
+            'A': 25,
+            'B': 25
+        };
+
+        function switchTurn() {
+            currentTurn = currentTurn === 'A' ? 'B' : 'A';
+            updateTurnState();
+        }
+
+        function updateTurnState() {
+            const panelA = document.querySelector('.pannel.left');
+            const panelB = document.querySelector('.pannel.right');
+            const goButtonsA = panelA.querySelectorAll('.go-button');
+            const goButtonsB = panelB.querySelectorAll('.go-button');
+            const addButtonsA = panelA.querySelectorAll('.add-button');
+            const addButtonsB = panelB.querySelectorAll('.add-button');
+
+            // Disable/enable panels and buttons based on the current turn
+            if (currentTurn === 'A') {
+                // Enable side A, disable side B
+                panelA.classList.remove('panel-disabled');
+                panelB.classList.add('panel-disabled');
+                goButtonsA.forEach(button => button.disabled = false);
+                addButtonsA.forEach(button => button.disabled = false);
+                goButtonsB.forEach(button => button.disabled = true);
+                addButtonsB.forEach(button => button.disabled = true);
+            } else {
+                // Enable side B, disable side A
+                panelA.classList.add('panel-disabled');
+                panelB.classList.remove('panel-disabled');
+                goButtonsA.forEach(button => button.disabled = true);
+                addButtonsA.forEach(button => button.disabled = true);
+                goButtonsB.forEach(button => button.disabled = false);
+                addButtonsB.forEach(button => button.disabled = false);
+            }
+        }
+
+        function createProjectile(x, y, targetX, targetY, onHit) {
+            const projectile = document.createElement('div');
+            projectile.className = 'projectile';
+            projectile.style.left = `${x}px`;
+            projectile.style.top = `${y}px`;
+            document.body.appendChild(projectile);
+
+            const step = () => {
+                const dx = targetX - x;
+                const dy = targetY - y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < ANIMATION_SPEED) {
+                    document.body.removeChild(projectile);
+                    onHit();
+                } else {
+                    const angle = Math.atan2(dy, dx);
+                    x += Math.cos(angle) * ANIMATION_SPEED * 2;
+                    y += Math.sin(angle) * ANIMATION_SPEED * 2;
+                    projectile.style.left = `${x}px`;
+                    projectile.style.top = `${y}px`;
+                    requestAnimationFrame(step);
+                }
+            };
+
+            step();
+        }
+
+        
+        function moveCircle(circle, targetX, targetY) {
+            return new Promise((resolve) => {
+                const rect = circle.getBoundingClientRect();
+                const startX = rect.left + rect.width / 2;
+                const startY = rect.top + rect.height / 2;
+
+                const dx = targetX - startX;
+                const dy = targetY - startY;
+                const totalDistance = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx);
+
+                let traveledDistance = 0;
+                const step = () => {
+                    if (traveledDistance >= circle.travelDistance || traveledDistance >= totalDistance) {
+                        resolve();
+                        return;
+                    }
+                    const currentRect = circle.getBoundingClientRect();
+                    const currentX = currentRect.left + currentRect.width / 2;
+                    const currentY = currentRect.top + currentRect.height / 2;
+
+                    const nextX = currentX + Math.cos(angle) * ANIMATION_SPEED;
+                    const nextY = currentY + Math.sin(angle) * ANIMATION_SPEED;
+
+                    traveledDistance += ANIMATION_SPEED;
+
+                    circle.style.left = `${nextX - rect.width / 2}px`;
+                    circle.style.top = `${nextY - rect.height / 2}px`;
+
+                    handleCollision(circle);
+
+                    requestAnimationFrame(step);
+                };
+
+                step();
+            });
+        }
+
+        function handleAttack(circle) {
+            const rect1 = circle.getBoundingClientRect();
+            let closestTarget = null;
+            let closestDistance = Infinity;
+
+            // Iterate over all circles to find the closest attack or healing target
+            circles.forEach((target) => {
+                if (circle !== target) {
+                    const rect2 = target.getBoundingClientRect();
+                    const dx = rect2.left - rect1.left;
+                    const dy = rect2.top - rect1.top;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < circle.attackDistance) {
+                        // Determine whether the target is valid based on aimAlly property
+                        const isValidTarget =
+                            circle.aimAlly
+                                ? target.side === circle.side // Heals allies
+                                : target.side !== circle.side; // Attacks enemies
+
+                        // Check if this target is the closest valid target
+                        if (isValidTarget && distance < closestDistance) {
+                            closestDistance = distance;
+                            closestTarget = target;
+                        }
+                    }
+                }
+            });
+
+            // If a closest target is found, perform the attack or healing logic
+            if (closestTarget) {
+                const rect2 = closestTarget.getBoundingClientRect();
+
+                if (circle.aimAlly && closestTarget.health < closestTarget.maxHealth && closestTarget.alive) {
+                    // Healing logic: only create projectile if healing is needed
+                    createProjectile(
+                        rect1.left + rect1.width / 2,
+                        rect1.top + rect1.height / 2,
+                        rect2.left + rect2.width / 2,
+                        rect2.top + rect2.height / 2,
+                        () => {
+                            closestTarget.health -= circle.attack;
+                        }
+                    );
+                } else if (!circle.aimAlly && closestTarget.alive) {
+                    // Attack logic: only attack living targets
+                    createProjectile(
+                        rect1.left + rect1.width / 2,
+                        rect1.top + rect1.height / 2,
+                        rect2.left + rect2.width / 2,
+                        rect2.top + rect2.height / 2,
+                        () => {
+                            closestTarget.health -= circle.attack;
+                            closestTarget.justWounded = true;
+                            if (closestTarget.health <= 0) {
+                                closestTarget.alive = false; // Mark the target as dead
+                                closestTarget.style.opacity = 0; // Set the target's opacity to 0 (invisible)
+                            }
+                        }
+                    );
+                }
+            }
+
+            // Enemy counterattacks if within range and aimAlly is false, and the circle is alive
+            circles.forEach((target) => {
+                if (circle !== target && !circle.aimAlly && circle.side !== target.side && target.alive && circle.alive) {
+                    const rect2 = target.getBoundingClientRect();
+                    const dx = rect2.left - rect1.left;
+                    const dy = rect2.top - rect1.top;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < target.attackDistance && target.justWounded) {
+                        createProjectile(
+                            rect2.left + rect2.width / 2,
+                            rect2.top + rect2.height / 2,
+                            rect1.left + rect1.width / 2,
+                            rect1.top + rect1.height / 2,
+                            () => {
+                                circle.health -= target.attack;
+                                if (circle.health <= 0) {
+                                    circle.alive = false; // Mark the circle as dead
+                                    circle.style.opacity = 0; // Set the circle's opacity to 0 (invisible)
+                                }
+                            }
+                        );
+                    }
+                }
+            });
+
+        }
+
+        function handleCollision(circle1) {
+            const rect1 = circle1.getBoundingClientRect();
+            circles.forEach((circle2) => {
+                if (circle1 !== circle2) {
+                    const rect2 = circle2.getBoundingClientRect();
+                    const dx = rect2.left - rect1.left;
+                    const dy = rect2.top - rect1.top;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < CIRCLE_SIZE) {
+                        const angle = Math.atan2(dy, dx);
+                        const overlap = CIRCLE_SIZE - distance;
+                        const moveX = Math.cos(angle) * overlap / 2;
+                        const moveY = Math.sin(angle) * overlap / 2;
+
+                        // Ensure bounce remains within the screen boundaries
+                        circle1.style.left = `${Math.min(
+                            Math.max(rect1.left - moveX, 0),
+                            window.innerWidth - CIRCLE_SIZE
+                        )}px`;
+                        circle1.style.top = `${Math.min(
+                            Math.max(rect1.top - moveY, 0),
+                            window.innerHeight - CIRCLE_SIZE
+                        )}px`;
+
+                        circle2.style.left = `${Math.min(
+                            Math.max(rect2.left + moveX, 0),
+                            window.innerWidth - CIRCLE_SIZE
+                        )}px`;
+                        circle2.style.top = `${Math.min(
+                            Math.max(rect2.top + moveY, 0),
+                            window.innerHeight - CIRCLE_SIZE
+                        )}px`;
+                    }
+                }
+            });
+        }
+
+        const targetMarkers = new Map();
+
+
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            if (selectedCircles.size > 0) {
+                const targetX = e.clientX;
+                const targetY = e.clientY;
+
+                selectedCircles.forEach((circle) => {
+                    if (targetMarkers.has(circle)) {
+                        // Remove old marker if it exists
+                        document.body.removeChild(targetMarkers.get(circle));
+                    }
+
+                    // Create a new target marker
+                    const marker = document.createElement('div');
+                    marker.className = 'circle';
+                    marker.style.opacity = '0.5';
+                    marker.style.backgroundColor = circle.color;
+                    marker.style.left = `${targetX - CIRCLE_SIZE / 2}px`;
+                    marker.style.top = `${targetY - CIRCLE_SIZE / 2}px`;
+                    marker.style.pointerEvents = 'none'; // Prevent interaction
+                    marker.textContent = ''; // No text for markers
+                    document.body.appendChild(marker);
+
+                    targetMarkers.set(circle, marker);
+                });
+            }
+        });
+
+
+        document.addEventListener('mousedown', (e) => {
+            if (e.button === 0) {
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+
+                selectionBox = document.createElement('div');
+                selectionBox.className = 'selection-box';
+                selectionBox.style.left = `${startX}px`;
+                selectionBox.style.top = `${startY}px`;
+                document.body.appendChild(selectionBox);
+            }
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const currentX = e.clientX;
+                const currentY = e.clientY;
+
+                const width = Math.abs(currentX - startX);
+                const height = Math.abs(currentY - startY);
+
+                selectionBox.style.width = `${width}px`;
+                selectionBox.style.height = `${height}px`;
+                selectionBox.style.left = `${Math.min(currentX, startX)}px`;
+                selectionBox.style.top = `${Math.min(currentY, startY)}px`;
+
+                const selectionRect = selectionBox.getBoundingClientRect();
+                selectedCircles.clear();
+
+                circles.forEach((circle) => {
+                    // Only consider the circle if canSelect is true
+                    if (circle.canSelect) {
+                        const circleRect = circle.getBoundingClientRect();
+                        if (
+                            selectionRect.left < circleRect.right &&
+                            selectionRect.right > circleRect.left &&
+                            selectionRect.top < circleRect.bottom &&
+                            selectionRect.bottom > circleRect.top
+                        ) {
+                            selectedCircles.add(circle);
+                            circle.classList.add('selected'); // Add the 'selected' class
+                        } else {
+                            circle.classList.remove('selected'); // Remove the 'selected' class
+                        }
+                    }
+                });
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                if (selectionBox) {
+                    document.body.removeChild(selectionBox);
+                    selectionBox = null;
+                }
+            }
+        });
+
+        function getTopCircle(x, y) {
+            const elementAtPoint = document.elementFromPoint(x, y); // Get the element at the mouse pointer
+            if (elementAtPoint && elementAtPoint.classList.contains('circle')) {
+                return elementAtPoint; // Return the topmost circle at the pointer location
+            }
+            return null; // Return null if no circle is found at the point
+        }
+
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('circle')) {
+                const clickedCircle = e.target;
+
+                // Only allow selection if the circle can be selected this turn
+                if (clickedCircle.canSelect) {
+                    selectedCircles.clear(); // Clear previous selections
+                    circles.forEach((circle) => circle.classList.remove('selected')); // Remove 'selected' class from all circles
+
+                    // Use z-index or elementFromPoint to ensure the topmost circle is selected
+                    const topCircle = getTopCircle(e.clientX, e.clientY);
+                    selectedCircles.add(topCircle);
+                    topCircle.classList.add('selected'); // Add 'selected' class to the topmost circle
+                }
+            }
+        });
+
+        document.querySelectorAll('.go-button').forEach((button) => {
+            button.addEventListener('click', () => {
+                const side = button.getAttribute('data-side'); // Determine side (A or B)
+                const opponentSide = side === 'A' ? 'B' : 'A'; // Get the opponent's side
+
+                circles.forEach((circle, index) => {
+                    if (!circle.alive) {
+                        // Remove the dead circle from the DOM
+                        document.body.removeChild(circle);
+                        // Remove the dead circle from the circles array
+                        circles.splice(index, 1);
+                    }
+                });
+
+                button.disabled = true; // Disable GO button temporarily
+
+                // Deselect all circles of the current side taking the turn
+                circles.forEach((circle) => {
+                    if (circle.side === side) {
+                        circle.classList.remove('selected'); // Deselect the circle using CSS
+                        circle.canSelect = false; // Disable selection for current side
+                    }
+                });
+
+                circles.forEach((circle) => {
+                    circle.justWounded = false;
+                    handleAttack(circle);
+                    circle.justWounded = false;
+                });
+
+                const promises = [];
+                targetMarkers.forEach((marker, circle) => {
+                    if (circle.side === side) { // Only move circles from the correct side
+                        const rect = marker.getBoundingClientRect();
+                        const targetX = rect.left + rect.width / 2;
+                        const targetY = rect.top + rect.height / 2;
+
+                        promises.push(
+                            moveCircle(circle, targetX, targetY).then(() => {
+                                handleAttack(circle);
+                                document.body.removeChild(marker); // Remove marker on arrival
+                                targetMarkers.delete(circle);
+                            })
+                        );
+                    }
+                });
+
+                Promise.all(promises).then(() => {
+                    // After all circles have moved, enable selection for the opponent side
+                    circles.forEach((circle) => {
+                        if (circle.side === opponentSide) {
+                            circle.canSelect = true; // Enable selection for the opponent
+                        }
+                    });
+                    button.disabled = false; // Re-enable GO button
+                    switchTurn(); // Switch turns after actions are complete
+                });
+            });
+        });
+
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateTurnState(); // Set the correct turn state on page load
+        });
+
+        function updateMoneyDisplay() {
+            // Iterate over the keys of the money object
+            for (const key of Object.keys(money)) {
+                const moneyDisplay = document.querySelector(`#money-${key}`);
+                if (moneyDisplay) {
+                    // Update the displayed money for each side
+                    moneyDisplay.textContent = `${money[key]}`;
+                }
+            }
+        }
+
+        function addNewCircle(color, side) {
+            const attributes = circleAttributes[color];  // Get the attributes for the selected color
+            const cost = attributes.cost;
+            if (money[side] >= cost) {
+                money[side] -= cost;
+            } else {
+                return;  // Not enough money to spawn circle
+            }
+            updateMoneyDisplay();
+
+
+            const circle = document.createElement('div');
+            Object.assign(circle, attributes);
+            circle.className = 'circle';
+            circle.textContent = side;
+            circle.side = side;
+            circle.color = color;
+            circle.canSelect = true; // Can be selected this turn
+            circle.alive = true;
+            circle.health = circle.maxHealth;
+            circle.justWounded = false;
+            
+
+            // Spawn position
+            const baseWidth = window.innerWidth / 4;
+            let x;
+            const y = Math.random() * (window.innerHeight - CIRCLE_SIZE);
+
+            if (side === 'A') {
+                x = Math.random() * (baseWidth - CIRCLE_SIZE); // Spawn in the leftmost section
+            } else if (side === 'B') {
+                x = Math.random() * (baseWidth - CIRCLE_SIZE) + baseWidth * 3; // Spawn in the rightmost section
+            }
+
+            circle.style.left = `${x}px`;
+            circle.style.top = `${y}px`;
+            circle.style.backgroundColor = color;
+
+            document.body.appendChild(circle);
+            circles.push(circle);
+        }
+
+        document.querySelectorAll('.add-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const color = button.getAttribute('data-color');
+                const side = button.getAttribute('data-side');
+                addNewCircle(color, side);
+            });
+        });
+
+    </script>
+</body>
+</html>

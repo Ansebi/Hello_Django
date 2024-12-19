@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6bf55d2a-6b71-4ab4-b160-0eac8b3b0445" name="Changes" comment="chart overhaul: chart js instead of chartist" />
+    <list default="true" id="6bf55d2a-6b71-4ab4-b160-0eac8b3b0445" name="Changes" comment="layout fixes">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -19,8 +21,7 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
-    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../JAVA" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -87,7 +88,21 @@
       <option name="project" value="LOCAL" />
       <updated>1667524816706</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="...">
+      <created>1667524949032</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1667524949032</updated>
+    </task>
+    <task id="LOCAL-00010" summary="layout fixes">
+      <created>1667585559339</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1667585559339</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -104,9 +119,10 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Charts added" />
     <MESSAGE value="ALLOWED_HOST ip address is now os variable" />
-    <MESSAGE value="..." />
     <MESSAGE value="pie chart unhides with a simple css" />
     <MESSAGE value="chart overhaul: chart js instead of chartist" />
-    <option name="LAST_COMMIT_MESSAGE" value="chart overhaul: chart js instead of chartist" />
+    <MESSAGE value="..." />
+    <MESSAGE value="layout fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="layout fixes" />
   </component>
 </project>

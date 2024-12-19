@@ -128,3 +128,14 @@ def charts(request):
                       'title': 'Charts',
                       'test_var': global_.counter
                   })
+
+
+def circles(request):
+    print(request)
+    return render(
+        request, 'hello_app/circles.html',
+        {
+            'title': 'Circles',
+            'test_var': 'here could be the score or something'
+        }
+    )
