@@ -24,7 +24,8 @@
             justify-content: center;
             color: white;
             font-weight: bold;
-            font-family: Arial, sans-serif;
+            font-family: Arial;
+            z-index: 1;
         }
 
         .selection-box {
@@ -48,6 +49,7 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+            z-index: 100;
         }
 
         .pannel.left {
@@ -71,10 +73,11 @@
             font-weight: bold;
             cursor: pointer;
             user-select: none;
+            color: black;
         }
 
         .pannel-button:hover {
-            background-color: #eeeeee;
+            background-color: #7f7878;
         }
 
         .panel-disabled {
@@ -88,23 +91,43 @@
         }
 
         .red-button {
-            background-color: red;
+            background-color: #d1495d;
         }
 
         .green-button {
-            background-color: green;
+            background-color: #6fa45c;
         }
 
         .blue-button {
-            background-color: blue;
+            background-color: #7a7ae7;
         }
 
         .black-button {
             background-color: black;
+            color: white;
+        }
+
+        .brown-button {
+            background-color: #734a14;
+            color: orange;
+        }
+
+        .pink-button {
+            background-color: #e4b9e4;
+        }
+
+        .gold-button {
+            background-color: gold;
+        }
+
+        .purple-button {
+            background-color: purple;
         }
 
         .go-button {
             background-color: #ffa500; /* Orange for distinction */
+            font-weight: bold;
+            font-family: Arial;
         }
 
         .go-button:disabled {
@@ -122,21 +145,89 @@
             pointer-events: none; /* Disable any interaction */
         }
 
+        #attack-area-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Prevent interaction with this layer */
+            z-index: -1; /* Place it below all other elements */
+        }
+
+        .attack-area {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.05;
+            pointer-events: none;
+        }
+
+        #fog-of-war {
+            position: relative;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            opacity: 1;
+            mix-blend-mode: hard-light;
+            pointer-events: none; /* Ensure it doesn't block interactions */
+            z-index: 4;
+        }
+
+        .sight {
+            position: absolute;
+            border-radius: 50%; /* Make it circular */
+            background-color: hsl(1, 1%, 50%);
+            pointer-events: none;
+            top: 0;
+            left: 0;
+            z-index: 3;
+        }
+
+        .explosion {
+            position: absolute;
+            width: 0px; /* Diameter of the circle */
+            height: 0px;
+            border-radius: 50%; /* Make it circular */
+            background-color: hsl(28, 89%, 56%, 0.5);
+            pointer-events: none;
+            z-index: 2;
+            animation: explode 1s forwards;
+        }
+
+        @keyframes explode {
+            from {
+                width: 0; /* Start width */
+                height: 0; /* Start height */
+                top: var(--explosion-top);
+                left: var(--explosion-left);
+                opacity: 1; /* Fully visible at the start */
+            }
+            to {
+                width: var(--explosion-size); /* Final width */
+                height: var(--explosion-size); /* Final height */
+                opacity: 0; /* Optional: fade out */
+            }
+        }
+
         #money-A, #money-B {
             font-weight: bold;  /* Make the font bold */
             font-family: 'Arial', sans-serif;  /* Use a clean sans-serif font */
-            font-size: calc(var(--circle-size) * 1.5);  /* Set font size to 1.5 times the CIRCLE_SIZE */
+            font-size: calc(var(--circle-size) * 1.5);  /* Set font size to 1.5 times the UNIT_SIZE */
             letter-spacing: 2px;  /* Make the font wider */
             color: black;  /* Text color */
             text-align: center;  /* Center the text */
+            pointer-events: none;
+            user-select: none;
         }
-
-
-
 
     </style>
 </head>
 <body>
+
+    <div id="fog-of-war"></div>
+    <div id="attack-area-layer"></div>    
 
     <div class="pannel left">
         <div class="pannel-button add-button gray-button" data-color="gray" data-side="A">+</div>
@@ -144,6 +235,10 @@
         <div class="pannel-button add-button green-button" data-color="green" data-side="A">+</div>
         <div class="pannel-button add-button blue-button" data-color="blue" data-side="A">+</div>
         <div class="pannel-button add-button black-button" data-color="black" data-side="A">+</div>
+        <div class="pannel-button add-button brown-button" data-color="brown" data-side="A">+</div>
+        <div class="pannel-button add-button pink-button" data-color="pink" data-side="A">+</div>
+        <div class="pannel-button add-button gold-button" data-color="gold" data-side="A">+</div>
+        <div class="pannel-button add-button purple-button" data-color="purple" data-side="A">+</div>
         <div class="pannel-button go-button" data-side="A">GO</div>
         <div id="money-A">25</div> <!-- Display money for side A -->        
     </div>
@@ -154,24 +249,34 @@
         <div class="pannel-button add-button green-button" data-color="green" data-side="B">+</div>
         <div class="pannel-button add-button blue-button" data-color="blue" data-side="B">+</div>
         <div class="pannel-button add-button black-button" data-color="black" data-side="B">+</div>
+        <div class="pannel-button add-button brown-button" data-color="brown" data-side="B">+</div>
+        <div class="pannel-button add-button pink-button" data-color="pink" data-side="B">+</div>
+        <div class="pannel-button add-button gold-button" data-color="gold" data-side="B">+</div>
+        <div class="pannel-button add-button purple-button" data-color="purple" data-side="B">+</div>
         <div class="pannel-button go-button" data-side="B">GO</div>
         <div id="money-B">25</div> <!-- Display money for side B -->
     </div>
-    
+
+
 
     <script>
-        const CIRCLE_SIZE = 25; // pixels
+        const UNIT_SIZE = 25; // pixels
         const ANIMATION_SPEED = 4; // pixels/frame
+        const purpleMoveCost = 2;
         const circleAttributes = {
-            gray: { cost: 1, maxHealth: 10, attack: 0, attackDistance: 0, travelDistance: CIRCLE_SIZE * 5, sight: CIRCLE_SIZE * 10, aimAlly: false },
-            red: { cost: 1, maxHealth: 3, attack: 1, attackDistance: CIRCLE_SIZE * 3, travelDistance: CIRCLE_SIZE * 7, sight: CIRCLE_SIZE * 10, aimAlly: false },
-            green: { cost: 1, maxHealth: 1, attack: 1, attackDistance: CIRCLE_SIZE * 8, travelDistance: CIRCLE_SIZE * 15, sight: CIRCLE_SIZE * 10, aimAlly: false },
-            blue: { cost: 1, maxHealth: 1, attack: -2, attackDistance: CIRCLE_SIZE * 3, travelDistance: CIRCLE_SIZE * 15, sight: CIRCLE_SIZE * 10, aimAlly: true },
-            black: { cost: 13, maxHealth: 1, attack: 3, attackDistance: CIRCLE_SIZE * 25, travelDistance: CIRCLE_SIZE * 20, sight: CIRCLE_SIZE * 10, aimAlly: false },
+            gray: { actualHue: 'gray', cost: 1, maxHealth: 10, attack: 0, attackDistanceFrom: UNIT_SIZE * 3, attackDistanceTo: UNIT_SIZE * 0, explosionSize: UNIT_SIZE * 0, travelDistance: UNIT_SIZE * 7, sightDistance: UNIT_SIZE * 0.75, aimAlly: false, aimNot: new Set([]) },
+            red: { actualHue: '#d1495d', cost: 1, maxHealth: 3, attack: 1, attackDistanceFrom: UNIT_SIZE * 0, attackDistanceTo: UNIT_SIZE * 3, explosionSize: UNIT_SIZE * 0, travelDistance: UNIT_SIZE * 12, sightDistance: UNIT_SIZE * 8, aimAlly: false, aimNot: new Set(['purple']) },
+            green: { actualHue: '#6fa45c', cost: 1, maxHealth: 1, attack: 1, attackDistanceFrom: UNIT_SIZE * 2, attackDistanceTo: UNIT_SIZE * 8, explosionSize: UNIT_SIZE * 0, travelDistance: UNIT_SIZE * 15, sightDistance: UNIT_SIZE * 8, aimAlly: false, aimNot: new Set(['gold', 'purple']) },
+            blue: { actualHue: '#7a7ae7', cost: 1, maxHealth: 1, attack: -2, attackDistanceFrom: UNIT_SIZE * 0, attackDistanceTo: UNIT_SIZE * 2, explosionSize: UNIT_SIZE * 0, travelDistance: UNIT_SIZE * 15, sightDistance: UNIT_SIZE * 8, aimAlly: true, aimNot: new Set(['green', 'blue', 'black', 'brown', 'pink', 'purple']) },
+            black: { actualHue: 'black', cost: 13, maxHealth: 1, attack: 3, attackDistanceFrom: UNIT_SIZE * 3, attackDistanceTo: UNIT_SIZE * 16, explosionSize: UNIT_SIZE * 0, travelDistance: UNIT_SIZE * 20, sightDistance: UNIT_SIZE * 18, aimAlly: false, aimNot: new Set(['gold', 'purple']) },
+            brown: { actualHue: '#734a14', cost: 20, maxHealth: 1, attack: 5, attackDistanceFrom: UNIT_SIZE * 8, attackDistanceTo: UNIT_SIZE * 40, explosionSize: UNIT_SIZE * 8, travelDistance: UNIT_SIZE * 7, sightDistance: UNIT_SIZE * 8, aimAlly: false, aimNot: new Set(['gold', 'pink', 'purple']) },
+            pink: { actualHue: '#e4b9e4', cost: 5, maxHealth: 1, attack: 1, attackDistanceFrom: UNIT_SIZE * 0, attackDistanceTo: UNIT_SIZE * 1, explosionSize: UNIT_SIZE * 2, travelDistance: UNIT_SIZE * 50, sightDistance: UNIT_SIZE * 18, aimAlly: false, aimNot: new Set(['gold', 'purple']) },
+            gold: { actualHue: 'gold', cost: 5, maxHealth: 1, attack: 0, attackDistanceFrom: UNIT_SIZE * 0, attackDistanceTo: UNIT_SIZE * 0, explosionSize: UNIT_SIZE * 0, travelDistance: UNIT_SIZE * 0, sightDistance: UNIT_SIZE * 2, aimAlly: false, aimNot: new Set([]) },
+            purple: { actualHue: 'purple', cost: 23, maxHealth: 1, attack: 0, attackDistanceFrom: UNIT_SIZE * 0, attackDistanceTo: UNIT_SIZE * 2, explosionSize: UNIT_SIZE * 0, travelDistance: UNIT_SIZE * 15, sightDistance: UNIT_SIZE * 8, aimAlly: false, aimNot: new Set(['gray', 'red', 'green', 'blue', 'black', 'brown', 'pink', 'purple']) },
         };
 
 
-        document.documentElement.style.setProperty('--circle-size', `${CIRCLE_SIZE}px`);
+        document.documentElement.style.setProperty('--circle-size', `${UNIT_SIZE}px`);
 
         const circles = [];
         const selectedCircles = new Set();
@@ -185,6 +290,8 @@
             'A': 25,
             'B': 25
         };
+        let showAttackRanges = true; // Track the visibility of attack ranges
+
 
         function switchTurn() {
             currentTurn = currentTurn === 'A' ? 'B' : 'A';
@@ -225,7 +332,6 @@
             projectile.style.left = `${x}px`;
             projectile.style.top = `${y}px`;
             document.body.appendChild(projectile);
-
             const step = () => {
                 const dx = targetX - x;
                 const dy = targetY - y;
@@ -243,10 +349,72 @@
                     requestAnimationFrame(step);
                 }
             };
-
             step();
         }
 
+        function handleCollision(circle1) {
+            const rect1 = circle1.getBoundingClientRect();
+
+            circles.forEach((circle2) => {
+                if (circle1 !== circle2) {
+                    const rect2 = circle2.getBoundingClientRect();
+                    const dx = rect2.left - rect1.left;
+                    const dy = rect2.top - rect1.top;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < UNIT_SIZE) {
+                        const angle = Math.atan2(dy, dx);
+                        const overlap = UNIT_SIZE - distance;
+                        const moveX = Math.cos(angle) * overlap / 2;
+                        const moveY = Math.sin(angle) * overlap / 2;
+
+                        // Ensure bounce remains within the screen boundaries for circle1
+                        const newCircle1Left = Math.min(
+                            Math.max(rect1.left - moveX, 0),
+                            window.innerWidth - UNIT_SIZE
+                        );
+                        const newCircle1Top = Math.min(
+                            Math.max(rect1.top - moveY, 0),
+                            window.innerHeight - UNIT_SIZE
+                        );
+                        circle1.style.left = `${newCircle1Left}px`;
+                        circle1.style.top = `${newCircle1Top}px`;
+
+                        // Update circle1's attack area
+                        if (circle1.attackArea) {
+                            circle1.attackArea.style.left = `${newCircle1Left - circle1.attackDistanceTo + UNIT_SIZE / 2}px`;
+                            circle1.attackArea.style.top = `${newCircle1Top - circle1.attackDistanceTo + UNIT_SIZE / 2}px`;
+                        }
+                        if (circle1.sightArea) {
+                            circle1.sightArea.style.left = `${newCircle1Left - circle1.sightDistance + UNIT_SIZE / 2}px`;
+                            circle1.sightArea.style.top = `${newCircle1Top - circle1.sightDistance + UNIT_SIZE / 2}px`;
+                        }
+
+                        // Ensure bounce remains within the screen boundaries for circle2
+                        const newCircle2Left = Math.min(
+                            Math.max(rect2.left + moveX, 0),
+                            window.innerWidth - UNIT_SIZE
+                        );
+                        const newCircle2Top = Math.min(
+                            Math.max(rect2.top + moveY, 0),
+                            window.innerHeight - UNIT_SIZE
+                        );
+                        circle2.style.left = `${newCircle2Left}px`;
+                        circle2.style.top = `${newCircle2Top}px`;
+
+                        // Update circle2's attack area
+                        if (circle2.attackArea) {
+                            circle2.attackArea.style.left = `${newCircle2Left - circle2.attackDistanceTo + UNIT_SIZE / 2}px`;
+                            circle2.attackArea.style.top = `${newCircle2Top - circle2.attackDistanceTo + UNIT_SIZE / 2}px`;
+                        }
+                        if (circle2.sightArea) {
+                            circle2.sightArea.style.left = `${newCircle2Left - circle2.sightDistance + UNIT_SIZE / 2}px`;
+                            circle2.sightArea.style.top = `${newCircle2Top - circle2.sightDistance + UNIT_SIZE / 2}px`;
+                        }
+                    }
+                }
+            });
+        }
         
         function moveCircle(circle, targetX, targetY) {
             return new Promise((resolve) => {
@@ -260,11 +428,17 @@
                 const angle = Math.atan2(dy, dx);
 
                 let traveledDistance = 0;
+
                 const step = () => {
-                    if (traveledDistance >= circle.travelDistance || traveledDistance >= totalDistance) {
+                    // Stop if traveledDistance exceeds travelDistance or if the target is reached
+                    if (
+                        traveledDistance >= circle.travelDistance ||
+                        traveledDistance >= totalDistance
+                    ) {
                         resolve();
                         return;
                     }
+
                     const currentRect = circle.getBoundingClientRect();
                     const currentX = currentRect.left + currentRect.width / 2;
                     const currentY = currentRect.top + currentRect.height / 2;
@@ -277,8 +451,17 @@
                     circle.style.left = `${nextX - rect.width / 2}px`;
                     circle.style.top = `${nextY - rect.height / 2}px`;
 
-                    handleCollision(circle);
+                    // Update the position of the attack area
+                    if (circle.attackArea) {
+                        circle.attackArea.style.left = `${nextX - circle.attackDistanceTo}px`;
+                        circle.attackArea.style.top = `${nextY - circle.attackDistanceTo}px`;
+                    }
+                    if (circle.sightArea) {
+                        circle.sightArea.style.left = `${nextX - circle.sightDistance}px`;
+                        circle.sightArea.style.top = `${nextY - circle.sightDistance}px`;
+                    }
 
+                    handleCollision(circle);
                     requestAnimationFrame(step);
                 };
 
@@ -286,12 +469,32 @@
             });
         }
 
+        function handleVision(circle) {
+            const rect1 = circle.getBoundingClientRect();
+            let closestTarget = null;
+            let closestDistance = Infinity;
+
+            // Find the closest valid target for attack or healing
+            circles.forEach((target) => {
+                if (target.side !== circle.side) {
+                    const rect2 = target.getBoundingClientRect();
+                    const dx = rect2.left - rect1.left;
+                    const dy = rect2.top - rect1.top;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < circle.sightDistance) {                       
+                        target.beingSpotted = true;
+                    }
+                }
+            });
+        };
+
+
         function handleAttack(circle) {
             const rect1 = circle.getBoundingClientRect();
             let closestTarget = null;
             let closestDistance = Infinity;
 
-            // Iterate over all circles to find the closest attack or healing target
+            // Find the closest valid target for attack or healing
             circles.forEach((target) => {
                 if (circle !== target) {
                     const rect2 = target.getBoundingClientRect();
@@ -299,14 +502,17 @@
                     const dy = rect2.top - rect1.top;
                     const distance = Math.sqrt(dx * dx + dy * dy);
 
-                    if (distance < circle.attackDistance) {
-                        // Determine whether the target is valid based on aimAlly property
-                        const isValidTarget =
-                            circle.aimAlly
-                                ? target.side === circle.side // Heals allies
-                                : target.side !== circle.side; // Attacks enemies
+                    if (circle.attackDistanceFrom <= distance &&
+                        distance <= circle.attackDistanceTo
+                    ) {
+                        const isValidTarget =                        
+                        !circle.aimNot.has(target.color) &&
+                        target.alive &&
+                        target.beingSpotted &&
+                        (circle.aimAlly
+                            ? target.side === circle.side // Heals allies
+                            : target.side !== circle.side); // Attacks enemies
 
-                        // Check if this target is the closest valid target
                         if (isValidTarget && distance < closestDistance) {
                             closestDistance = distance;
                             closestTarget = target;
@@ -315,104 +521,172 @@
                 }
             });
 
-            // If a closest target is found, perform the attack or healing logic
+            // Perform the attack or healing logic if a target is found
             if (closestTarget) {
                 const rect2 = closestTarget.getBoundingClientRect();
 
                 if (circle.aimAlly && closestTarget.health < closestTarget.maxHealth && closestTarget.alive) {
-                    // Healing logic: only create projectile if healing is needed
+                    // Healing logic
                     createProjectile(
                         rect1.left + rect1.width / 2,
                         rect1.top + rect1.height / 2,
                         rect2.left + rect2.width / 2,
                         rect2.top + rect2.height / 2,
                         () => {
-                            closestTarget.health -= circle.attack;
+                            closestTarget.health -= circle.attack; // Negative attack value heals
                         }
                     );
                 } else if (!circle.aimAlly && closestTarget.alive) {
-                    // Attack logic: only attack living targets
+                    // Attack logic
                     createProjectile(
                         rect1.left + rect1.width / 2,
                         rect1.top + rect1.height / 2,
                         rect2.left + rect2.width / 2,
                         rect2.top + rect2.height / 2,
                         () => {
-                            closestTarget.health -= circle.attack;
-                            closestTarget.justWounded = true;
-                            if (closestTarget.health <= 0) {
-                                closestTarget.alive = false; // Mark the target as dead
-                                closestTarget.style.opacity = 0; // Set the target's opacity to 0 (invisible)
-                            }
+                            if (circle.explosionSize) {
+                                createExplosion(circle, closestTarget);
+                            } else {
+                                // Capture instead of inflicting damage if the target is a producer:
+                                if (closestTarget.color === 'gold') {
+                                    captureProducer(circle, closestTarget);
+                                } else {
+                                    takeDamage(closestTarget, circle);
+                                }; 
+                            };                           
                         }
                     );
+                    
                 }
             }
+        };
 
-            // Enemy counterattacks if within range and aimAlly is false, and the circle is alive
+        function captureProducer(attacker, producer) {
+            producer.side = attacker.side;
+            producer.textContent = attacker.side;
+        };
+
+        function takeDamage(victim, attacker) {            
+            // Reduce the victim's health by the attacker's attack value
+            const damage = attacker.attack;
+            victim.health -= damage;
+            victim.justWounded = true;
+
+            // Check if the victim's health has dropped to zero or below
+            if (victim.health <= 0) {
+                victim.alive = false; // Mark as dead
+                victim.style.opacity = 0; // Make invisible
+
+                // Remove attack area if it exists
+                if (victim.attackArea) {
+                    victim.attackArea.remove(); // Remove attack area
+                };
+
+                // Remove sight area if it exists
+                if (victim.sightArea) {
+                    victim.sightArea.remove(); // Remove sight area
+                };
+            } else {
+                retaliate(victim);
+            }
+        }
+
+
+        function explosionDamage(attacker, explosionCenterX, explosionCenterY, explosionRadius) {
+            const victims = new Set();
+            circles.forEach(circle => {                
+                const rect = circle.getBoundingClientRect();
+                const circleLeft = rect.left;
+                const circleTop = rect.top;
+
+                // Calculate the center of the circle
+                const circleCenterX = circleLeft + (UNIT_SIZE / 2);
+                const circleCenterY = circleTop + (UNIT_SIZE / 2);
+                
+                // Calculate the distance between the explosion center and the circle center
+                const distance = Math.sqrt(
+                    (circleCenterX - explosionCenterX) ** 2 +
+                    (circleCenterY - explosionCenterY) ** 2
+                );
+
+                // Check if the distance is less than or equal to the explosion radius
+                if (distance <= explosionRadius) {
+                    victims.add(circle);
+                }
+            });
+            victims.forEach(victim => {
+                takeDamage(victim, attacker);
+            });
+        };
+
+        function createExplosion(attacker, target) {
+            const explosionSize = attacker.explosionSize;
+            const explosionRadius = explosionSize / 2;
+            const explosion = document.createElement('div');
+            explosion.className = 'explosion';
+            const rect = target.getBoundingClientRect();
+            const targetLeft = rect.left;
+            const targetTop = rect.top;
+            const explosionX = targetLeft - (explosionSize - UNIT_SIZE) / 2;
+            const explosionY = targetTop - (explosionSize - UNIT_SIZE) / 2;
+            const explosionCenterX = explosionX + explosionRadius;
+            const explosionCenterY = explosionY + explosionRadius;
+            explosion.style.left = `${explosionX}px`; // Position it under the original circle
+            explosion.style.top = `${explosionY}px`;
+            
+            // Set the explosion size as a CSS variable
+            explosion.style.setProperty('--explosion-size', `${explosionSize}px`);
+            explosion.style.setProperty('--explosion-left', `${parseFloat(target.style.left)}px`);
+            explosion.style.setProperty('--explosion-top', `${parseFloat(target.style.top)}px`);
+
+            document.body.appendChild(explosion);
+            explosionDamage(attacker, explosionCenterX, explosionCenterY, explosionRadius);
+        };
+
+        // Handle retaliation logic: find the closest enemy to attack
+        function retaliate(circle) {
+            const rect1 = circle.getBoundingClientRect();
+            let closestEnemy = null;
+            let closestDistance = Infinity;
+
+            // Find the closest enemy
             circles.forEach((target) => {
-                if (circle !== target && !circle.aimAlly && circle.side !== target.side && target.alive && circle.alive) {
+                if (
+                    target.color !== 'gold' && // Destroying gold makes no sense for red being hit
+                    !circle.aimNot.has(target.color) &&
+                    circle !== target &&
+                    target.side !== circle.side &&
+                    target.alive
+                ) {
                     const rect2 = target.getBoundingClientRect();
                     const dx = rect2.left - rect1.left;
                     const dy = rect2.top - rect1.top;
                     const distance = Math.sqrt(dx * dx + dy * dy);
-
-                    if (distance < target.attackDistance && target.justWounded) {
-                        createProjectile(
-                            rect2.left + rect2.width / 2,
-                            rect2.top + rect2.height / 2,
-                            rect1.left + rect1.width / 2,
-                            rect1.top + rect1.height / 2,
-                            () => {
-                                circle.health -= target.attack;
-                                if (circle.health <= 0) {
-                                    circle.alive = false; // Mark the circle as dead
-                                    circle.style.opacity = 0; // Set the circle's opacity to 0 (invisible)
-                                }
-                            }
-                        );
+                    if (
+                        circle.attackDistanceFrom <= distance && 
+                        distance <= circle.attackDistanceTo && 
+                        distance < closestDistance
+                    ) {
+                        closestDistance = distance;
+                        closestEnemy = target;
                     }
                 }
             });
 
-        }
+            // Attack the closest enemy if found
+            if (closestEnemy) {
+                const rect2 = closestEnemy.getBoundingClientRect();
 
-        function handleCollision(circle1) {
-            const rect1 = circle1.getBoundingClientRect();
-            circles.forEach((circle2) => {
-                if (circle1 !== circle2) {
-                    const rect2 = circle2.getBoundingClientRect();
-                    const dx = rect2.left - rect1.left;
-                    const dy = rect2.top - rect1.top;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-
-                    if (distance < CIRCLE_SIZE) {
-                        const angle = Math.atan2(dy, dx);
-                        const overlap = CIRCLE_SIZE - distance;
-                        const moveX = Math.cos(angle) * overlap / 2;
-                        const moveY = Math.sin(angle) * overlap / 2;
-
-                        // Ensure bounce remains within the screen boundaries
-                        circle1.style.left = `${Math.min(
-                            Math.max(rect1.left - moveX, 0),
-                            window.innerWidth - CIRCLE_SIZE
-                        )}px`;
-                        circle1.style.top = `${Math.min(
-                            Math.max(rect1.top - moveY, 0),
-                            window.innerHeight - CIRCLE_SIZE
-                        )}px`;
-
-                        circle2.style.left = `${Math.min(
-                            Math.max(rect2.left + moveX, 0),
-                            window.innerWidth - CIRCLE_SIZE
-                        )}px`;
-                        circle2.style.top = `${Math.min(
-                            Math.max(rect2.top + moveY, 0),
-                            window.innerHeight - CIRCLE_SIZE
-                        )}px`;
+                createProjectile(
+                    rect1.left + rect1.width / 2,
+                    rect1.top + rect1.height / 2,
+                    rect2.left + rect2.width / 2,
+                    rect2.top + rect2.height / 2,
+                    () => {
+                        takeDamage(closestEnemy, circle)
                     }
-                }
-            });
+                );
+            }
         }
 
         const targetMarkers = new Map();
@@ -435,10 +709,11 @@
                     marker.className = 'circle';
                     marker.style.opacity = '0.5';
                     marker.style.backgroundColor = circle.color;
-                    marker.style.left = `${targetX - CIRCLE_SIZE / 2}px`;
-                    marker.style.top = `${targetY - CIRCLE_SIZE / 2}px`;
+                    marker.style.left = `${targetX - UNIT_SIZE / 2}px`;
+                    marker.style.top = `${targetY - UNIT_SIZE / 2}px`;
                     marker.style.pointerEvents = 'none'; // Prevent interaction
                     marker.textContent = ''; // No text for markers
+                    marker.style.zIndex = 5;
                     document.body.appendChild(marker);
 
                     targetMarkers.set(circle, marker);
@@ -532,21 +807,155 @@
             }
         });
 
+        let touchStartTime = 0;
+        let lastTapTime = 0;
+        const LONG_PRESS_THRESHOLD = 500; // 500ms for long press
+        const DOUBLE_TAP_THRESHOLD = 300; // 300ms for double-tap
+
+        document.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                const touch = e.touches[0];
+                const currentTime = Date.now();
+                touchStartTime = currentTime;
+
+                // Detect double-tap
+                if (currentTime - lastTapTime < DOUBLE_TAP_THRESHOLD) {
+                    handleRightClick(touch.clientX, touch.clientY);
+                    return; // Exit if double-tap is detected
+                }
+                lastTapTime = currentTime;
+
+                // Initialize drag-selection
+                isDragging = true;
+                startX = touch.clientX;
+                startY = touch.clientY;
+
+                selectionBox = document.createElement('div');
+                selectionBox.className = 'selection-box';
+                selectionBox.style.left = `${startX}px`;
+                selectionBox.style.top = `${startY}px`;
+                document.body.appendChild(selectionBox);
+            }
+        });
+
+
+
+        document.addEventListener('touchend', (e) => {
+            if (e.touches.length === 0) {
+                const touchDuration = Date.now() - touchStartTime;
+
+                if (isDragging) {
+                    isDragging = false;
+                    if (selectionBox) {
+                        document.body.removeChild(selectionBox);
+                        selectionBox = null;
+                    }
+                }
+
+                // Long press for right-click
+                if (touchDuration >= LONG_PRESS_THRESHOLD) {
+                    const touch = e.changedTouches[0];
+                    handleRightClick(touch.clientX, touch.clientY);
+                }
+            }
+        });
+
+
+        // Function to handle right-click behavior
+        function handleRightClick(x, y) {
+            if (selectedCircles.size > 0) {
+                selectedCircles.forEach((circle) => {
+                    if (targetMarkers.has(circle)) {
+                        // Remove old marker if it exists
+                        document.body.removeChild(targetMarkers.get(circle));
+                    }
+
+                    // Create a new target marker
+                    const marker = document.createElement('div');
+                    marker.className = 'circle';
+                    marker.style.opacity = '0.5';
+                    marker.style.backgroundColor = circle.color;
+                    marker.style.left = `${x - UNIT_SIZE / 2}px`;
+                    marker.style.top = `${y - UNIT_SIZE / 2}px`;
+                    marker.style.pointerEvents = 'none'; // Prevent interaction
+                    marker.textContent = ''; // No text for markers
+                    document.body.appendChild(marker);
+
+                    targetMarkers.set(circle, marker);
+                });
+            }
+        }
+
+        document.addEventListener('touchmove', (e) => {
+            if (isDragging && e.touches.length === 1) {
+                const touch = e.touches[0];
+                const currentX = touch.clientX;
+                const currentY = touch.clientY;
+
+                const width = Math.abs(currentX - startX);
+                const height = Math.abs(currentY - startY);
+
+                selectionBox.style.width = `${width}px`;
+                selectionBox.style.height = `${height}px`;
+                selectionBox.style.left = `${Math.min(currentX, startX)}px`;
+                selectionBox.style.top = `${Math.min(currentY, startY)}px`;
+
+                const selectionRect = selectionBox.getBoundingClientRect();
+                selectedCircles.clear();
+
+                circles.forEach((circle) => {
+                    if (circle.canSelect) {
+                        const circleRect = circle.getBoundingClientRect();
+                        if (
+                            selectionRect.left < circleRect.right &&
+                            selectionRect.right > circleRect.left &&
+                            selectionRect.top < circleRect.bottom &&
+                            selectionRect.bottom > circleRect.top
+                        ) {
+                            selectedCircles.add(circle);
+                            circle.classList.add('selected'); // Add the 'selected' class
+                        } else {
+                            circle.classList.remove('selected'); // Remove the 'selected' class
+                        }
+                    }
+                });
+            }
+        });
+
+        document.addEventListener('touchcancel', (e) => {
+            if (isDragging) {
+                isDragging = false;
+                if (selectionBox) {
+                    document.body.removeChild(selectionBox);
+                    selectionBox = null;
+                }
+            }
+        });
+
         document.querySelectorAll('.go-button').forEach((button) => {
             button.addEventListener('click', () => {
                 const side = button.getAttribute('data-side'); // Determine side (A or B)
                 const opponentSide = side === 'A' ? 'B' : 'A'; // Get the opponent's side
 
+                button.disabled = true; // Disable GO button temporarily
+
+                // Clear the dead circles
                 circles.forEach((circle, index) => {
                     if (!circle.alive) {
+                        // Remove the attack area if it exists
+                        if (circle.attackArea) {
+                            circle.attackArea.remove();
+                        };
+                        // Remove the sight area if it exists
+                        if (circle.sightArea) {
+                            circle.sightArea.remove();
+                        };
                         // Remove the dead circle from the DOM
-                        document.body.removeChild(circle);
+                        circle.remove();
                         // Remove the dead circle from the circles array
                         circles.splice(index, 1);
                     }
                 });
-
-                button.disabled = true; // Disable GO button temporarily
 
                 // Deselect all circles of the current side taking the turn
                 circles.forEach((circle) => {
@@ -556,10 +965,9 @@
                     }
                 });
 
+                // Reset vision for all
                 circles.forEach((circle) => {
-                    circle.justWounded = false;
-                    handleAttack(circle);
-                    circle.justWounded = false;
+                    circle.beingSpotted = false;
                 });
 
                 const promises = [];
@@ -571,8 +979,7 @@
 
                         promises.push(
                             moveCircle(circle, targetX, targetY).then(() => {
-                                handleAttack(circle);
-                                document.body.removeChild(marker); // Remove marker on arrival
+                                marker.remove(); // Remove marker on arrival
                                 targetMarkers.delete(circle);
                             })
                         );
@@ -580,19 +987,88 @@
                 });
 
                 Promise.all(promises).then(() => {
+                    circles.forEach((circle) => {
+                        circle.justWounded = false;
+                    });
+
+                    circles.forEach((circle) => {
+                        handleVision(circle);
+                    });
+
+                    circles.forEach((circle) => {
+                        handleAttack(circle);
+                    });
+
+                    circles.forEach((circle) => {
+                        circle.justWounded = false;
+                    });
+                });
+
+                Promise.all(promises).then(() => {
                     // After all circles have moved, enable selection for the opponent side
                     circles.forEach((circle) => {
                         if (circle.side === opponentSide) {
                             circle.canSelect = true; // Enable selection for the opponent
+                            circle.canSee = true;                         
+                            circle.sightArea.style.display = 'block'                            
+                        } else {
+                            circle.canSee = false;
+                            circle.sightArea.style.display = 'none'
                         }
                     });
                     button.disabled = false; // Re-enable GO button
                     switchTurn(); // Switch turns after actions are complete
                 });
+
+                // Update Side's Money
+                // Add From Having Producers
+                circles.forEach((circle) => {
+                    if (circle.side === opponentSide && circle.color === 'gold') {
+                        money[opponentSide] += 1;
+                    };
+                });
+                // Expenses for having Purples                
+                circles.forEach((circle) => {
+                    if (circle.side === opponentSide && circle.color === 'purple') {
+                        if (money[opponentSide] >= purpleMoveCost) {
+                            money[opponentSide] -= purpleMoveCost;
+                        } else {
+                            circle.alive = false;
+                        }
+                    };
+                });
+                updateMoneyDisplay();
+
+                // Clear the dead circles
+                circles.forEach((circle, index) => {
+                    if (!circle.alive) {
+                        // Remove the attack area if it exists
+                        if (circle.attackArea) {
+                            circle.attackArea.remove();
+                        };
+                        // Remove the sight area if it exists
+                        if (circle.sightArea) {
+                            circle.sightArea.remove();
+                        };
+                        // Remove the dead circle from the DOM
+                        circle.remove();
+                        // Remove the dead circle from the circles array
+                        circles.splice(index, 1);
+                    }
+                });
             });
         });
 
-
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'R' || event.key === 'r') {
+                showAttackRanges = !showAttackRanges; // Toggle visibility
+                circles.forEach((circle) => {
+                    if (circle.attackArea) {
+                        circle.attackArea.style.display = showAttackRanges ? 'block' : 'none';
+                    }
+                });
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', () => {
             updateTurnState(); // Set the correct turn state on page load
@@ -609,17 +1085,18 @@
             }
         }
 
-        function addNewCircle(color, side) {
-            const attributes = circleAttributes[color];  // Get the attributes for the selected color
+        function addNewCircle(color, side, showAttackRanges) {
+            const attributes = circleAttributes[color]; // Get the attributes for the selected color
             const cost = attributes.cost;
+
             if (money[side] >= cost) {
                 money[side] -= cost;
             } else {
-                return;  // Not enough money to spawn circle
+                return; // Not enough money to spawn circle
             }
             updateMoneyDisplay();
 
-
+            // Original circle
             const circle = document.createElement('div');
             Object.assign(circle, attributes);
             circle.className = 'circle';
@@ -630,32 +1107,111 @@
             circle.alive = true;
             circle.health = circle.maxHealth;
             circle.justWounded = false;
-            
+            circle.beingSpotted = false;
 
             // Spawn position
             const baseWidth = window.innerWidth / 4;
             let x;
-            const y = Math.random() * (window.innerHeight - CIRCLE_SIZE);
+            const y = Math.random() * (window.innerHeight - UNIT_SIZE);
 
             if (side === 'A') {
-                x = Math.random() * (baseWidth - CIRCLE_SIZE); // Spawn in the leftmost section
+                x = Math.random() * (baseWidth - UNIT_SIZE); // Spawn in the leftmost section
             } else if (side === 'B') {
-                x = Math.random() * (baseWidth - CIRCLE_SIZE) + baseWidth * 3; // Spawn in the rightmost section
+                x = Math.random() * (baseWidth - UNIT_SIZE) + baseWidth * 3; // Spawn in the rightmost section
             }
 
             circle.style.left = `${x}px`;
             circle.style.top = `${y}px`;
-            circle.style.backgroundColor = color;
+            circle.style.backgroundColor = attributes['actualHue'];
 
             document.body.appendChild(circle);
             circles.push(circle);
+
+            circle.attackArea = createAttackArea(circle, x, y, showAttackRanges);
+            circle.sightArea = createSightArea(circle, x, y);
         }
+
+        function createAttackArea(circle, x, y, showAttackRanges) {
+            const attackArea = document.createElement('div');
+            attackArea.className = 'attack-area';
+            attackArea.style.width = `${circle.attackDistanceFrom * 2}px`;
+            attackArea.style.height = `${circle.attackDistanceFrom * 2}px`;
+            attackArea.style.border = `${circle.attackDistanceTo - circle.attackDistanceFrom}px solid ${circle.style.backgroundColor}`;
+            attackArea.style.left = `${x - (circle.attackDistanceTo * 2 - UNIT_SIZE) / 2}px`; // Center it under the original circle
+            attackArea.style.top = `${y - (circle.attackDistanceTo * 2 - UNIT_SIZE) / 2}px`;
+            attackArea.style.display = showAttackRanges ? 'block' : 'none'; // Initial visibility
+            const attackAreaLayer = document.getElementById('attack-area-layer');
+            attackAreaLayer.appendChild(attackArea)
+            return attackArea;
+        }
+
+        function createSightArea(circle, x, y) {
+            const sightArea = document.createElement('div');
+            sightArea.className = 'sight';
+            sightArea.style.width = `${circle.sightDistance * 2}px`;
+            sightArea.style.height = `${circle.sightDistance * 2}px`;
+            sightArea.style.left = `${x - (circle.sightDistance * 2 - UNIT_SIZE) / 2}px`; // Center it under the original circle
+            sightArea.style.top = `${y - (circle.sightDistance * 2 - UNIT_SIZE) / 2}px`;
+            const fogOfWar = document.getElementById('fog-of-war');
+            fogOfWar.appendChild(sightArea)
+            return sightArea;
+        }
+
+        function createPurple(circles, side, showAttackRanges) {
+            if (money[side] < purpleMoveCost) {
+                return;
+            };
+
+            const attributes = circleAttributes['purple'];
+            const enemyCircles = new Set();
+            circles.forEach((circle) => {
+                if (
+                    circle.side !== side &&
+                    circle.alive
+                ) {
+                    enemyCircles.add(circle);
+                };
+            });
+            const random_index = Math.floor(Math.random() * enemyCircles.size);
+            const circle = Array.from(enemyCircles)[random_index];
+            Object.assign(circle, attributes);
+            if (circle.color === 'purple') {
+                circle.textContent = circle.side;
+            }
+            circle.side = side;
+            circle.color = 'purple';
+            circle.canSelect = true; // Can be selected this turn
+            circle.health = circle.maxHealth;
+            circle.justWounded = false;
+            circle.beingSpotted = false;         
+            circle.style.backgroundColor = attributes['actualHue'];
+            // Remove attack area if it exists
+            if (circle.attackArea) {
+                circle.attackArea.remove(); // Remove attack area
+            };
+            // Remove sight area if it exists
+            if (circle.sightArea) {
+                circle.sightArea.remove(); // Remove sight area
+            };
+            const rect = circle.getBoundingClientRect();
+            const x = rect.left;
+            const y = rect.top;
+            circle.attackArea = createAttackArea(circle, x, y, showAttackRanges);
+            circle.sightArea = createSightArea(circle, x, y);
+            money[side] -= circle.cost;
+            updateMoneyDisplay();
+        };
+
 
         document.querySelectorAll('.add-button').forEach(button => {
             button.addEventListener('click', () => {
                 const color = button.getAttribute('data-color');
                 const side = button.getAttribute('data-side');
-                addNewCircle(color, side);
+                if (color === 'purple') {
+                    createPurple(circles, side, showAttackRanges);
+                } else {
+                    addNewCircle(color, side, showAttackRanges);
+                }                
             });
         });
 
