@@ -98,10 +98,6 @@
             background-color: #6fa45c;
         }
 
-        .blue-button {
-            background-color: #7a7ae7;
-        }
-
         .black-button {
             background-color: black;
             color: white;
@@ -120,8 +116,17 @@
             background-color: gold;
         }
 
+        .blue-button {
+            background-color: #7a7ae7;
+        }
+
         .purple-button {
             background-color: purple;
+        }
+
+        .darkgreen-button {
+            background-color: darkgreen;
+            color: orange;
         }
 
         .go-button {
@@ -233,12 +238,13 @@
         <div class="pannel-button add-button gray-button" data-color="gray" data-side="A">+</div>
         <div class="pannel-button add-button red-button" data-color="red" data-side="A">+</div>
         <div class="pannel-button add-button green-button" data-color="green" data-side="A">+</div>
-        <div class="pannel-button add-button blue-button" data-color="blue" data-side="A">+</div>
         <div class="pannel-button add-button black-button" data-color="black" data-side="A">+</div>
         <div class="pannel-button add-button brown-button" data-color="brown" data-side="A">+</div>
         <div class="pannel-button add-button pink-button" data-color="pink" data-side="A">+</div>
         <div class="pannel-button add-button gold-button" data-color="gold" data-side="A">+</div>
         <div class="pannel-button add-button purple-button" data-color="purple" data-side="A">+</div>
+        <div class="pannel-button add-button blue-button" data-color="blue" data-side="A">+</div>
+        <div class="pannel-button add-button darkgreen-button" data-color="darkgreen" data-side="A">+</div>
         <div class="pannel-button go-button" data-side="A">GO</div>
         <div id="money-A">25</div> <!-- Display money for side A -->        
     </div>
@@ -246,13 +252,14 @@
     <div class="pannel right">
         <div class="pannel-button add-button gray-button" data-color="gray" data-side="B">+</div>
         <div class="pannel-button add-button red-button" data-color="red" data-side="B">+</div>
-        <div class="pannel-button add-button green-button" data-color="green" data-side="B">+</div>
-        <div class="pannel-button add-button blue-button" data-color="blue" data-side="B">+</div>
+        <div class="pannel-button add-button green-button" data-color="green" data-side="B">+</div>        
         <div class="pannel-button add-button black-button" data-color="black" data-side="B">+</div>
         <div class="pannel-button add-button brown-button" data-color="brown" data-side="B">+</div>
         <div class="pannel-button add-button pink-button" data-color="pink" data-side="B">+</div>
         <div class="pannel-button add-button gold-button" data-color="gold" data-side="B">+</div>
         <div class="pannel-button add-button purple-button" data-color="purple" data-side="B">+</div>
+        <div class="pannel-button add-button blue-button" data-color="blue" data-side="B">+</div>
+        <div class="pannel-button add-button darkgreen-button" data-color="darkgreen" data-side="B">+</div>
         <div class="pannel-button go-button" data-side="B">GO</div>
         <div id="money-B">25</div> <!-- Display money for side B -->
     </div>
@@ -262,17 +269,17 @@
     <script>
         const UNIT_SIZE = 25; // pixels
         const ANIMATION_SPEED = 4; // pixels/frame
-        const purpleMoveCost = 2;
         const circleAttributes = {
-            gray: { actualHue: 'gray', cost: 1, maxHealth: 10, attack: 0, attackDistanceFrom: UNIT_SIZE * 3, attackDistanceTo: UNIT_SIZE * 0, explosionSize: UNIT_SIZE * 0, travelDistance: UNIT_SIZE * 7, sightDistance: UNIT_SIZE * 0.75, aimAlly: false, aimNot: new Set([]) },
-            red: { actualHue: '#d1495d', cost: 1, maxHealth: 3, attack: 1, attackDistanceFrom: UNIT_SIZE * 0, attackDistanceTo: UNIT_SIZE * 3, explosionSize: UNIT_SIZE * 0, travelDistance: UNIT_SIZE * 12, sightDistance: UNIT_SIZE * 8, aimAlly: false, aimNot: new Set(['purple']) },
-            green: { actualHue: '#6fa45c', cost: 1, maxHealth: 1, attack: 1, attackDistanceFrom: UNIT_SIZE * 2, attackDistanceTo: UNIT_SIZE * 8, explosionSize: UNIT_SIZE * 0, travelDistance: UNIT_SIZE * 15, sightDistance: UNIT_SIZE * 8, aimAlly: false, aimNot: new Set(['gold', 'purple']) },
-            blue: { actualHue: '#7a7ae7', cost: 1, maxHealth: 1, attack: -2, attackDistanceFrom: UNIT_SIZE * 0, attackDistanceTo: UNIT_SIZE * 2, explosionSize: UNIT_SIZE * 0, travelDistance: UNIT_SIZE * 15, sightDistance: UNIT_SIZE * 8, aimAlly: true, aimNot: new Set(['green', 'blue', 'black', 'brown', 'pink', 'purple']) },
-            black: { actualHue: 'black', cost: 13, maxHealth: 1, attack: 3, attackDistanceFrom: UNIT_SIZE * 3, attackDistanceTo: UNIT_SIZE * 16, explosionSize: UNIT_SIZE * 0, travelDistance: UNIT_SIZE * 20, sightDistance: UNIT_SIZE * 18, aimAlly: false, aimNot: new Set(['gold', 'purple']) },
-            brown: { actualHue: '#734a14', cost: 20, maxHealth: 1, attack: 5, attackDistanceFrom: UNIT_SIZE * 8, attackDistanceTo: UNIT_SIZE * 40, explosionSize: UNIT_SIZE * 8, travelDistance: UNIT_SIZE * 7, sightDistance: UNIT_SIZE * 8, aimAlly: false, aimNot: new Set(['gold', 'pink', 'purple']) },
-            pink: { actualHue: '#e4b9e4', cost: 5, maxHealth: 1, attack: 1, attackDistanceFrom: UNIT_SIZE * 0, attackDistanceTo: UNIT_SIZE * 1, explosionSize: UNIT_SIZE * 2, travelDistance: UNIT_SIZE * 50, sightDistance: UNIT_SIZE * 18, aimAlly: false, aimNot: new Set(['gold', 'purple']) },
-            gold: { actualHue: 'gold', cost: 5, maxHealth: 1, attack: 0, attackDistanceFrom: UNIT_SIZE * 0, attackDistanceTo: UNIT_SIZE * 0, explosionSize: UNIT_SIZE * 0, travelDistance: UNIT_SIZE * 0, sightDistance: UNIT_SIZE * 2, aimAlly: false, aimNot: new Set([]) },
-            purple: { actualHue: 'purple', cost: 23, maxHealth: 1, attack: 0, attackDistanceFrom: UNIT_SIZE * 0, attackDistanceTo: UNIT_SIZE * 2, explosionSize: UNIT_SIZE * 0, travelDistance: UNIT_SIZE * 15, sightDistance: UNIT_SIZE * 8, aimAlly: false, aimNot: new Set(['gray', 'red', 'green', 'blue', 'black', 'brown', 'pink', 'purple']) },
+            gray: { actualHue: 'gray', cost: 1, upkeep: 0, maxHealth: 25, attack: 0, attackDistanceFrom: UNIT_SIZE * 3, attackDistanceTo: UNIT_SIZE * 0, explosionSize: UNIT_SIZE * 0, travelDistance: UNIT_SIZE * 7, sightDistance: UNIT_SIZE * 0.75, aimAlly: false, captureChance: 0, aimNot: new Set([]) },
+            red: { actualHue: '#d1495d', cost: 1, upkeep: 0, maxHealth: 1, attack: 1, attackDistanceFrom: UNIT_SIZE * 0, attackDistanceTo: UNIT_SIZE * 3, explosionSize: UNIT_SIZE * 0, travelDistance: UNIT_SIZE * 12, sightDistance: UNIT_SIZE * 8, aimAlly: false, captureChance: 0, aimNot: new Set(['purple']) },
+            green: { actualHue: '#6fa45c', cost: 1, upkeep: 0, maxHealth: 1, attack: 1, attackDistanceFrom: UNIT_SIZE * 3, attackDistanceTo: UNIT_SIZE * 8, explosionSize: UNIT_SIZE * 0, travelDistance: UNIT_SIZE * 12, sightDistance: UNIT_SIZE * 8, aimAlly: false, captureChance: 0.25, aimNot: new Set(['gold', 'blue', 'purple']) },
+            black: { actualHue: 'black', cost: 13, upkeep: 0, maxHealth: 1, attack: 1, attackDistanceFrom: UNIT_SIZE * 3, attackDistanceTo: UNIT_SIZE * 19, explosionSize: UNIT_SIZE * 0, travelDistance: UNIT_SIZE * 20, sightDistance: UNIT_SIZE * 20, aimAlly: false, captureChance: 0, aimNot: new Set(['gold', 'blue', 'purple']) },
+            brown: { actualHue: '#734a14', cost: 20, upkeep: 0, maxHealth: 1, attack: 5, attackDistanceFrom: UNIT_SIZE * 8, attackDistanceTo: UNIT_SIZE * 40, explosionSize: UNIT_SIZE * 8, travelDistance: UNIT_SIZE * 7, sightDistance: UNIT_SIZE * 8, aimAlly: false, captureChance: 1, aimNot: new Set(['gold', 'pink', 'blue', 'purple']) },
+            pink: { actualHue: '#e4b9e4', cost: 5, upkeep: 0, maxHealth: 1, attack: 1, attackDistanceFrom: UNIT_SIZE * 0, attackDistanceTo: UNIT_SIZE * 1, explosionSize: UNIT_SIZE * 2, travelDistance: UNIT_SIZE * 50, sightDistance: UNIT_SIZE * 18, aimAlly: false, captureChance: 0, aimNot: new Set(['gold', 'blue', 'purple']) },
+            gold: { actualHue: 'gold', cost: 5, upkeep: 0, maxHealth: 1, attack: 0, attackDistanceFrom: UNIT_SIZE * 0, attackDistanceTo: UNIT_SIZE * 0, explosionSize: UNIT_SIZE * 0, travelDistance: UNIT_SIZE * 0, sightDistance: UNIT_SIZE * 2, aimAlly: false, captureChance: 1, aimNot: new Set([]) },
+            purple: { actualHue: 'purple', cost: 23, upkeep: 2, maxHealth: 1, attack: 0, attackDistanceFrom: UNIT_SIZE * 0, attackDistanceTo: UNIT_SIZE * 2, explosionSize: UNIT_SIZE * 0, travelDistance: UNIT_SIZE * 15, sightDistance: UNIT_SIZE * 8, aimAlly: false, captureChance: 1, aimNot: new Set(['gray', 'red', 'green', 'black', 'brown', 'pink', 'blue', 'purple']) },
+            blue: { actualHue: '#7a7ae7', cost: 10, upkeep: 10, maxHealth: 1, attack: -2, attackDistanceFrom: UNIT_SIZE * 0, attackDistanceTo: UNIT_SIZE * 2, explosionSize: UNIT_SIZE * 0, travelDistance: UNIT_SIZE * 12, sightDistance: UNIT_SIZE * 8, aimAlly: true, captureChance: 1, aimNot: new Set(['red', 'green', 'black', 'brown', 'pink', 'blue', 'purple', 'darkgreen']) },
+            darkgreen: { actualHue: 'darkgreen', cost: 100, upkeep: 25, maxHealth: 1, attack: 25, attackDistanceFrom: UNIT_SIZE * 40, attackDistanceTo: UNIT_SIZE * 100, explosionSize: UNIT_SIZE * 24, travelDistance: UNIT_SIZE * 12, sightDistance: UNIT_SIZE * 8, captureChance: 1, aimAlly: false, aimNot: new Set(['gold', 'pink', 'blue', 'purple']) },
         };
 
 
@@ -290,6 +297,11 @@
             'A': 25,
             'B': 25
         };
+        let blueMoves = {
+            'A': 0,
+            'B': 0
+        };
+        let laborForDarkGreen = 10; // How many moves do blue have to take to enable one darkgreen
         let showAttackRanges = true; // Track the visibility of attack ranges
 
 
@@ -390,27 +402,29 @@
                             circle1.sightArea.style.top = `${newCircle1Top - circle1.sightDistance + UNIT_SIZE / 2}px`;
                         }
 
-                        // Ensure bounce remains within the screen boundaries for circle2
-                        const newCircle2Left = Math.min(
-                            Math.max(rect2.left + moveX, 0),
-                            window.innerWidth - UNIT_SIZE
-                        );
-                        const newCircle2Top = Math.min(
-                            Math.max(rect2.top + moveY, 0),
-                            window.innerHeight - UNIT_SIZE
-                        );
-                        circle2.style.left = `${newCircle2Left}px`;
-                        circle2.style.top = `${newCircle2Top}px`;
+                        if (circle2.color !== 'gray' || circle1.color === 'gray') {
+                            // Ensure bounce remains within the screen boundaries for circle2
+                            const newCircle2Left = Math.min(
+                                Math.max(rect2.left + moveX, 0),
+                                window.innerWidth - UNIT_SIZE
+                            );
+                            const newCircle2Top = Math.min(
+                                Math.max(rect2.top + moveY, 0),
+                                window.innerHeight - UNIT_SIZE
+                            );
+                            circle2.style.left = `${newCircle2Left}px`;
+                            circle2.style.top = `${newCircle2Top}px`;
 
-                        // Update circle2's attack area
-                        if (circle2.attackArea) {
-                            circle2.attackArea.style.left = `${newCircle2Left - circle2.attackDistanceTo + UNIT_SIZE / 2}px`;
-                            circle2.attackArea.style.top = `${newCircle2Top - circle2.attackDistanceTo + UNIT_SIZE / 2}px`;
-                        }
-                        if (circle2.sightArea) {
-                            circle2.sightArea.style.left = `${newCircle2Left - circle2.sightDistance + UNIT_SIZE / 2}px`;
-                            circle2.sightArea.style.top = `${newCircle2Top - circle2.sightDistance + UNIT_SIZE / 2}px`;
-                        }
+                            // Update circle2's attack area
+                            if (circle2.attackArea) {
+                                circle2.attackArea.style.left = `${newCircle2Left - circle2.attackDistanceTo + UNIT_SIZE / 2}px`;
+                                circle2.attackArea.style.top = `${newCircle2Top - circle2.attackDistanceTo + UNIT_SIZE / 2}px`;
+                            };
+                            if (circle2.sightArea) {
+                                circle2.sightArea.style.left = `${newCircle2Left - circle2.sightDistance + UNIT_SIZE / 2}px`;
+                                circle2.sightArea.style.top = `${newCircle2Top - circle2.sightDistance + UNIT_SIZE / 2}px`;
+                            };
+                        };
                     }
                 }
             });
@@ -547,9 +561,13 @@
                             if (circle.explosionSize) {
                                 createExplosion(circle, closestTarget);
                             } else {
-                                // Capture instead of inflicting damage if the target is a producer:
-                                if (closestTarget.color === 'gold') {
-                                    captureProducer(circle, closestTarget);
+                                // Capture instead of inflicting damage if the target is capturable:
+                                if (closestTarget.captureChance  && ['red', 'purple'].includes(circle.color)) {
+                                    if (Math.random() < closestTarget.captureChance) {
+                                        captureCircle(circle, closestTarget);
+                                    } else {
+                                        takeDamage(closestTarget, circle);
+                                    };                                    
                                 } else {
                                     takeDamage(closestTarget, circle);
                                 }; 
@@ -561,9 +579,9 @@
             }
         };
 
-        function captureProducer(attacker, producer) {
-            producer.side = attacker.side;
-            producer.textContent = attacker.side;
+        function captureCircle(attacker, captive) {
+            captive.side = attacker.side;
+            captive.textContent = attacker.side;
         };
 
         function takeDamage(victim, attacker) {            
@@ -1027,17 +1045,23 @@
                         money[opponentSide] += 1;
                     };
                 });
-                // Expenses for having Purples                
+                // Expenses for upkeep               
                 circles.forEach((circle) => {
-                    if (circle.side === opponentSide && circle.color === 'purple') {
-                        if (money[opponentSide] >= purpleMoveCost) {
-                            money[opponentSide] -= purpleMoveCost;
+                    if (circle.side === opponentSide) {
+                        if (money[opponentSide] >= circle.upkeep) {
+                            money[opponentSide] -= circle.upkeep;
                         } else {
                             circle.alive = false;
                         }
-                    };
+                    }
                 });
                 updateMoneyDisplay();
+                // Count blue working days
+                circles.forEach((circle) => {
+                    if (circle.side === opponentSide && circle.color === 'blue') {
+                        blueMoves[opponentSide] += 1;
+                    };
+                });
 
                 // Clear the dead circles
                 circles.forEach((circle, index) => {
@@ -1088,13 +1112,22 @@
         function addNewCircle(color, side, showAttackRanges) {
             const attributes = circleAttributes[color]; // Get the attributes for the selected color
             const cost = attributes.cost;
+            
+            if (color === 'darkgreen') {
+                if (blueMoves[side] >= laborForDarkGreen) {
+                    blueMoves[side] -= laborForDarkGreen;
+                } else {
+                    return; // Not enough research to spawn dark green
+                };
+            };
 
             if (money[side] >= cost) {
                 money[side] -= cost;
             } else {
                 return; // Not enough money to spawn circle
-            }
+            };
             updateMoneyDisplay();
+
 
             // Original circle
             const circle = document.createElement('div');
@@ -1158,11 +1191,10 @@
         }
 
         function createPurple(circles, side, showAttackRanges) {
-            if (money[side] < purpleMoveCost) {
+            const attributes = circleAttributes['purple'];            
+            if (money[side] < attributes.cost) {
                 return;
-            };
-
-            const attributes = circleAttributes['purple'];
+            };            
             const enemyCircles = new Set();
             circles.forEach((circle) => {
                 if (
